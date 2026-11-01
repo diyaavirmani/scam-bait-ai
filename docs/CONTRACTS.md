@@ -28,6 +28,7 @@ cases(id TEXT PK, channel TEXT, external_id TEXT, status TEXT, scam_type TEXT, v
       summary TEXT, created_at TEXT, updated_at TEXT)          -- status: watching|engaged|closed
 messages(id INTEGER PK, case_id TEXT, role TEXT, text TEXT, ts TEXT)   -- role: scammer|persona
 intel_items(id INTEGER PK, case_id TEXT, kind TEXT, value TEXT, message_id INTEGER, first_seen TEXT,
+            norm TEXT,  -- normalised value for exact network matching (app/networks.py)
             UNIQUE(case_id, kind, value))
 events(id INTEGER PK AUTOINCREMENT, ts TEXT, case_id TEXT, channel TEXT, type TEXT, data TEXT)
 evidence(id INTEGER PK, case_id TEXT, kind TEXT, path TEXT, sha256 TEXT, created_at TEXT)  -- kind: csv|pdf|transcript|report
@@ -38,7 +39,7 @@ seen_keys(key TEXT PK, ts TEXT)   -- idempotency (Telegram update_id, Twilio Cal
 
 ## Store API (`app.store.Store`, all async)
 
-`init, close, ping`; `get_or_create_case(channel, external_id) -> dict` (returns the open case, or creates one); `new_case(channel, external_id)`; `get_case(id)`; `update_case(id, **fields)` (sets `updated_at`); `list_cases(limit)`; `add_message(case_id, role, text) -> id`; `list_messages(case_id)`; `count_messages(case_id, role)`; `add_intel(case_id, kind, value, message_id) -> bool` (False on duplicate); `list_intel(case_id)`; `add_event(Event) -> id`; `events_after(last_id, limit) -> [Event]`; `add_evidence(case_id, kind, path, sha256)`; `list_evidence(case_id)`; `mark_seen(key) -> bool` (False if already seen).
+`init, close, ping`; `get_or_create_case(channel, external_id) -> dict` (returns the open case, or creates one); `new_case(channel, external_id)`; `get_case(id)`; `update_case(id, **fields)` (sets `updated_at`); `list_cases(limit)`; `add_message(case_id, role, text) -> id`; `list_messages(case_id)`; `count_messages(case_id, role)`; `add_intel(case_id, kind, value, message_id) -> bool` (False on duplicate); `list_intel(case_id)`; `network_rows()` (intel shared by 2 or more cases); `add_event(Event) -> id`; `events_after(last_id, limit) -> [Event]`; `add_evidence(case_id, kind, path, sha256)`; `list_evidence(case_id)`; `mark_seen(key) -> bool` (False if already seen).
 
 ## Events (`app.models.Event`, SSE and the `events` table)
 
@@ -57,6 +58,7 @@ seen_keys(key TEXT PK, ts TEXT)   -- idempotency (Telegram update_id, Twilio Cal
 | `metrics.speed` | `{step, provider, model, ms, queued_ms, retries, tokens_per_s, prompt_tokens, completion_tokens, cached_tokens}` |
 | `ratelimit.status` | `{model, rpm_used, rpm_limit, waiting}` (not stored) |
 | `task.retrying` | `{step, model, retry_in_ms, reason}` |
+| `network.updated` | `{network_id, case_ids, shared: [{field, value, case_count}]}` (emitted by the bus after an `intel.extracted` changes a scammer network) |
 
 ## Providers
 
@@ -86,6 +88,7 @@ seen_keys(key TEXT PK, ts TEXT)   -- idempotency (Telegram update_id, Twilio Cal
 | `POST /voice/incoming`, `POST /voice/status`, `POST /voice/stream-status`, `WS /voice/stream` | D |
 | `GET /api/v1/events/stream` (SSE, `Last-Event-ID` replay), `GET /api/v1/cases`, `GET /api/v1/cases/{id}`, `GET /api/v1/cases/{id}/export.csv`, `.pdf` | C |
 | `GET /login`, `POST /login`, `GET /chats`, `/calls`, `/cases`, `/export` (cookie auth with `DASHBOARD_PASSWORD`) | C |
+| `GET /api/networks` (scammer networks, cookie auth) | C (integrator add-on) |
 | `GET /health` (DB ping, model self-test result, Decisions availability) | Integrator |
 
 Each track exposes `router` (a FastAPI `APIRouter`) from its package. `app/main.py` includes them.
