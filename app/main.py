@@ -7,6 +7,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
+from app.channels import router as channels_router
+from app.channels import telegram as telegram_channel
 from app.config import Settings, get_settings
 from app.events import Bus
 from app.events.sse import router as events_router
@@ -48,12 +50,21 @@ def create_app(settings: Settings | None = None, *, run_startup: bool = True) ->
             await start_runtime(settings)
         yield
         if run_startup:
-            await get_runtime().store.close()
+            await telegram_channel.drain()
+            await telegram_channel.close_api()
+            rt = get_runtime()
+            for closer in (getattr(rt.cerebras, "client", None), getattr(rt.openai, "client", None)):
+                if closer is not None:
+                    await closer.close()
+            if getattr(rt.openai, "http", None) is not None:
+                await rt.openai.http.aclose()
+            await rt.store.close()
 
     app = FastAPI(title="SCAM-BAIT AI", version="2.0.0", lifespan=lifespan)
     app.state.settings = settings
     app.include_router(events_router)
     app.include_router(voice_router)
+    app.include_router(channels_router)
 
     @app.get("/health")
     async def health():
@@ -62,8 +73,10 @@ def create_app(settings: Settings | None = None, *, run_startup: bool = True) ->
             db_ok = await get_runtime().store.ping()
         except Exception:
             db_ok = False
+        from app.detection.decisions import decisions_status
         ok = db_ok and _selftest["ok"]
-        body = {"status": "ok" if ok else "degraded", "checks": {"database": db_ok, "models": _selftest}}
+        body = {"status": "ok" if ok else "degraded",
+                "checks": {"database": db_ok, "models": _selftest, "decisions": decisions_status()}}
         return JSONResponse(body, status_code=200 if ok else 503)
 
     return app
