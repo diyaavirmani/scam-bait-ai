@@ -12,6 +12,28 @@ Text chats arrive on Telegram (and the kept `POST /api/v1/honeypot` API). Live p
 
 This is a rebuild of SCAM-BAIT (2026). `docs/AUDIT.md` lists what was broken in the old app, and `docs/CHANGES.md` maps every issue to its fix.
 
+## Links
+
+| What | Link |
+|---|---|
+| Telegram bot (try it) | [@SCAMBAIT_BOT](https://t.me/SCAMBAIT_BOT) |
+| Live dashboard | [scam-bait-ai-dashboard.onrender.com](https://scam-bait-ai-dashboard.onrender.com) |
+| Backend API | [scam-bait-ai-api.onrender.com](https://scam-bait-ai-api.onrender.com) |
+| Health check | [/health](https://scam-bait-ai-api.onrender.com/health) |
+| API docs (OpenAPI) | [/docs](https://scam-bait-ai-api.onrender.com/docs) |
+| Dashboard pages | [Overview](https://scam-bait-ai-api.onrender.com/), [Live Chats](https://scam-bait-ai-api.onrender.com/chats), [Calls](https://scam-bait-ai-api.onrender.com/calls), [Intelligence](https://scam-bait-ai-api.onrender.com/intel), [Scammer Networks](https://scam-bait-ai-api.onrender.com/networks), [Cases and Export](https://scam-bait-ai-api.onrender.com/cases), [System Status](https://scam-bait-ai-api.onrender.com/system) |
+| Live event stream (SSE) | [/api/v1/events/stream](https://scam-bait-ai-api.onrender.com/api/v1/events/stream) |
+| Live run screenshots | [Live working](#live-working) section below |
+| Demo script | [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) |
+| Deploy guide | [docs/DEPLOY_RENDER.md](docs/DEPLOY_RENDER.md) |
+| Evaluation results | [docs/EVAL_RESULTS.md](docs/EVAL_RESULTS.md) |
+| Audit of the old app and fixes | [docs/AUDIT.md](docs/AUDIT.md), [docs/CHANGES.md](docs/CHANGES.md) |
+| Hackathon | [DevDay Exchange Community Hackathon, New Delhi](https://luma.com/6t5uk4lo) |
+| Cerebras inference | [cerebras.ai](https://www.cerebras.ai) |
+| OpenAI platform | [platform.openai.com](https://platform.openai.com) |
+
+The backend runs on Render's free plan, so the first request after about 15 idle minutes can take up to a minute while it wakes.
+
 ## How it works
 
 ![How it works: scammer sends message, safety check, LLM takes over, extracting secrets, report to authorities](docs/images/how-it-works.jpeg)
