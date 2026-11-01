@@ -66,7 +66,7 @@ async def case_detail(case_id: str) -> dict:
 
 
 @router.get("/api/v1/cases")
-async def list_cases(channel: Optional[str] = None, limit: int = 100) -> dict:
+async def list_cases(channel: Optional[str] = None, limit: int = 100, with_evidence: bool = False) -> dict:
     store = _store()
     limit = max(1, min(int(limit), 500))
     rows = await store.list_cases(limit)
@@ -75,6 +75,8 @@ async def list_cases(channel: Optional[str] = None, limit: int = 100) -> dict:
         rows = [r for r in rows if r.get("channel") in wanted]
     for r in rows:
         r["turns"] = await store.count_messages(r["id"], "scammer")
+        if with_evidence:
+            r["evidence"] = await store.list_evidence(r["id"])
     return {"cases": rows, "max_turns": MAX_TURNS}
 
 

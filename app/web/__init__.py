@@ -4,10 +4,11 @@
 """
 from fastapi import APIRouter
 
-from app.web import api, pages
+from app.web import api, export, pages
 
 router = APIRouter()
 router.include_router(pages.router)
 router.include_router(api.router)
+router.include_router(export.router)
 
 __all__ = ["router"]
