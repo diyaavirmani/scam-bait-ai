@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SCAM-BAIT calls</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/dashboard/assets/app.css">
+</head>
+<body>
+<header class="top" id="top"></header>
+<main class="layout">
+  <aside class="panel">
+    <h2>Calls</h2>
+    <ul class="list" id="case-list"></ul>
+    <p class="empty" id="list-empty">No calls yet. A call appears here when Twilio rings the number.</p>
+  </aside>
+  <section id="detail-wrap">
+    <p class="panel empty" id="no-sel">Select a call on the left.</p>
+    <div class="detail" id="detail" hidden>
+      <div class="col">
+        <div class="panel">
+          <h2>Call</h2>
+          <dl class="kv" id="call-facts"></dl>
+          <h2 style="margin-top:12px">Case</h2>
+          <dl class="kv" id="case-facts"></dl>
+        </div>
+        <div class="panel">
+          <h2>Live captions</h2>
+          <div class="thread" id="captions"></div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="panel">
+          <h2>Detection (qwen on Cerebras, OpenAI Decisions, final verdict)</h2>
+          <div id="detection"></div>
+        </div>
+        <div class="panel">
+          <h2>Extracted intel</h2>
+          <div id="intel"></div>
+        </div>
+        <div class="panel">
+          <h2>Rolling summary</h2>
+          <div id="summary"></div>
+        </div>
+        <div class="panel">
+          <h2>Cerebras speed</h2>
+          <div id="speed"></div>
+        </div>
+        <div class="panel">
+          <h2>Rate limits per model</h2>
+          <div id="ratelimit"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="/dashboard/assets/common.js"></script>
+<script src="/dashboard/assets/live.js"></script>
+<script src="/dashboard/assets/calls.js"></script>
+</body>
+</html>
