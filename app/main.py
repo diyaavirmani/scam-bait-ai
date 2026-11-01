@@ -40,7 +40,35 @@ async def start_runtime(settings: Settings) -> Runtime:
     _selftest.update(await cerebras.self_test())
     _selftest["detail"] = "ok"
     log.info("model self-test ok: %s", _selftest.get("models"))
+    await register_telegram_webhook(settings)
     return rt
+
+
+async def register_telegram_webhook(settings: Settings) -> None:
+    """Point the bot at PUBLIC_BASE_URL/telegram/webhook on startup so the deployed URL and secret always match.
+    Logs only the ok flag and description, never the token or the secret. Set TELEGRAM_AUTO_WEBHOOK=0 to skip."""
+    import os
+    if os.getenv("TELEGRAM_AUTO_WEBHOOK", "1") == "0":
+        return
+    missing = [n for n, v in (("TELEGRAM_BOT_TOKEN", settings.telegram_bot_token),
+                              ("TELEGRAM_WEBHOOK_SECRET", settings.telegram_webhook_secret),
+                              ("PUBLIC_BASE_URL", settings.public_base_url)) if not v]
+    if missing:
+        log.warning("telegram webhook not registered, missing: %s", ", ".join(missing))
+        return
+    from app.channels.telegram_api import TelegramAPI
+    api = TelegramAPI(settings.telegram_bot_token)
+    try:
+        body = await api.set_webhook(settings.public_base_url + "/telegram/webhook",
+                                     settings.telegram_webhook_secret, allowed_updates=["message"])
+        if body is None:
+            log.warning("telegram webhook register: request failed")
+        else:
+            log.info("telegram webhook register: ok=%s description=%s", body.get("ok"), body.get("description", ""))
+    except Exception as exc:  # never block startup on Telegram
+        log.warning("telegram webhook register error: %s", type(exc).__name__)
+    finally:
+        await api.aclose()
 
 
 def create_app(settings: Settings | None = None, *, run_startup: bool = True) -> FastAPI:
