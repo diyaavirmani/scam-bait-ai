@@ -108,7 +108,8 @@ class CallBridge:
                     lp.LIVE_URL, additional_headers=lp.headers(self.settings.openai_api_key),
                     user_agent_header=lp.USER_AGENT, open_timeout=10)
             except Exception as exc:
-                await self._error(f"GPT-Live connect failed: {type(exc).__name__}")
+                code = getattr(getattr(exc, "response", None), "status_code", None)  # e.g. 401/403: no GPT-Live access
+                await self._error(f"GPT-Live connect failed: {type(exc).__name__}" + (f" HTTP {code}" if code else ""))
                 return
             await self._send_live(lp.session_start(self.settings.live_model, lp.PERSONA_INSTRUCTIONS))
             tw = asyncio.create_task(self._twilio_loop())
