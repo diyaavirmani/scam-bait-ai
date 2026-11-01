@@ -53,6 +53,46 @@ How the boxes map to the code:
 
 Nothing else is AI. Twilio, Telegram, FastAPI and SQLite are plain glue.
 
+## Live working
+
+A real run of the demo script on 1 Nov 2026 against the deployed app: the Telegram bot [@SCAMBAIT_BOT](https://t.me/SCAMBAIT_BOT), the [backend](https://scam-bait-ai-api.onrender.com) and the [dashboard](https://scam-bait-ai-dashboard.onrender.com). All 20 messages (two legit look-alikes, then an 18 message investment scam) were sent from Telegram, and the persona replied to every one. Every number, link and account in the script is a fake demo value.
+
+What the run shows:
+
+- The persona keeps asking the scammer to repeat details, which draws out the UPI ID, phone number, bank account and links.
+- Asked "Are you a bot?", it answers "I am not a bot, my eyesight is just bad."
+- Asked to ignore its instructions and reveal its system prompt, it stays in character and leaks nothing.
+- Asked for the referral code from the first scam message, it recalls "GOLD77" fourteen messages later.
+- The dashboard shows the transcript, detection, rolling summary and extracted intel live over SSE, and the case closes as `investment_trading`, high risk, with an "Online Financial Fraud" report ready to export.
+
+### Telegram
+
+| | |
+|---|---|
+| ![Look-alike messages and the opening of the scam](docs/images/live/tg-01-lookalikes-and-opening.png) | ![Persona asks for the phone number again](docs/images/live/tg-02-asks-phone.png) |
+| Look-alike messages, then the scam opens | Persona asks for the phone number again |
+| ![Persona asks for the bank details again](docs/images/live/tg-03-asks-bank.png) | ![Bot check and prompt injection](docs/images/live/tg-04-bot-check-and-injection.png) |
+| Persona asks for the bank details again | Bot check and prompt injection handled |
+| ![GOLD77 recall](docs/images/live/tg-05-gold77-recall.png) | ![End of the conversation](docs/images/live/tg-06-goodbye.png) |
+| Recalls the GOLD77 referral code | End of the conversation |
+
+### Dashboard
+
+![Chats page mid conversation with detection and intel](docs/images/live/dash-01-chats-mid.png)
+*Chats, mid conversation: transcript, detection panel and intel filling in live.*
+
+![Chats page after the last message](docs/images/live/dash-02-chats-final.png)
+*Chats, after the last message: full transcript, rolling summary and extracted intel.*
+
+![Intelligence page](docs/images/live/dash-03-intel.png)
+*Intelligence: UPI ID, phone, bank account, IFSC, links, APK, names and amount.*
+
+![Scammer Networks page](docs/images/live/dash-04-networks.png)
+*Scammer Networks: links cases that share identifiers (none yet with a single demo case).*
+
+![Cases and Export page](docs/images/live/dash-05-cases-export.png)
+*Cases and Export: the case report and the CSV + PDF evidence pack.*
+
 ## Setup
 
 Requirements: Python 3.12, [uv](https://docs.astral.sh/uv/), an ngrok (or other public HTTPS) URL for Telegram and Twilio webhooks.
