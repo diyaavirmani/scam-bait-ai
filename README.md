@@ -86,20 +86,6 @@ cd dashboard && npm ci && npm run build
 | `API_KEY` | Optional `x-api-key` for `POST /api/v1/honeypot`; empty leaves the route open |
 | `PERSONA_MODEL`, `FLAG_MODEL`, `DECISIONS_MODEL`, `LIVE_MODEL`, `CALL_BATCH_SECONDS`, `DB_PATH` | Optional; defaults in `.env.example` |
 
-## Demo
-
-Full script: `docs/DEMO_SCRIPT.md`.
-
-**Telegram chat**
-1. Start the app and `ngrok http 8000`; set `PUBLIC_BASE_URL` to the ngrok https URL.
-2. Register the webhook once: `.venv/bin/python scripts/set_telegram_webhook.py`.
-3. Open `PUBLIC_BASE_URL/chats` on the laptop (no login) and the bot on your phone.
-4. Send the DEMO_SCRIPT messages L1, L2 and 1 to 18. Watch the qwen flag and the Decisions verdict, the persona reply, the intel, the rolling summary and the Cerebras speed meter appear live. Message 15 checks that the persona remembers message 1. "ok bye" closes the case; the Cases page then shows the report, and Export gives the CSV and PDF with their SHA-256 hashes.
-
-**Phone call**
-1. In the Twilio console, point the number's voice webhook to `PUBLIC_BASE_URL/voice/incoming` (POST).
-2. Open `PUBLIC_BASE_URL/calls` and call the number. The persona greets you; talk over it to test barge-in; say a UPI ID and a phone number and watch them appear as intel; hang up and watch the report appear.
-
 ## Scammer networks
 
 Cases are linked when they share an identical identifier, so one fraud ring shows up as one network instead of many separate chats and calls. It is exact matching only, no embeddings or ML:
