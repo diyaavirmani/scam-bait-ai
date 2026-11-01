@@ -10,3 +10,10 @@ class ProviderError(Exception):
     def __init__(self, kind: str, message: str = "") -> None:
         super().__init__(f"{kind}: {message}")
         self.kind = kind
+
+
+def build_clients(settings, http_client=None):
+    """(CerebrasClient, OpenAIClient) for the Runtime. One pooled client each (F-02)."""
+    from app.providers.cerebras import CerebrasClient
+    from app.providers.openai_client import OpenAIClient
+    return CerebrasClient(settings, http_client=http_client), OpenAIClient(settings, http_client=http_client)

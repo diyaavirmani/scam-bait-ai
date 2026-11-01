@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse
 from app.config import Settings, get_settings
 from app.events import Bus
 from app.events.sse import router as events_router
+from app.providers import build_clients
 from app.runtime import Runtime, get_runtime, set_runtime
 from app.store import Store
 
@@ -26,8 +27,13 @@ async def start_runtime(settings: Settings) -> Runtime:
         raise RuntimeError(f"Missing required settings: {', '.join(missing)} (see .env.example)")
     store = Store(settings.db_path)
     await store.init()
-    rt = Runtime(settings=settings, store=store, bus=Bus(store))
+    cerebras, openai_client = build_clients(settings)
+    rt = Runtime(settings=settings, store=store, bus=Bus(store), cerebras=cerebras, openai=openai_client)
     set_runtime(rt)
+    # M-01: fail loudly at startup if the pinned models are not served
+    _selftest.update(await cerebras.self_test())
+    _selftest["detail"] = "ok"
+    log.info("model self-test ok: %s", _selftest.get("models"))
     return rt
 
 
