@@ -24,7 +24,8 @@ CREATE TABLE IF NOT EXISTS messages (
 CREATE INDEX IF NOT EXISTS idx_messages_case ON messages(case_id, id);
 CREATE TABLE IF NOT EXISTS intel_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT, case_id TEXT NOT NULL REFERENCES cases(id), kind TEXT NOT NULL,
-    value TEXT NOT NULL, message_id INTEGER, first_seen TEXT NOT NULL, UNIQUE(case_id, kind, value)
+    value TEXT NOT NULL, message_id INTEGER, first_seen TEXT NOT NULL, norm TEXT NOT NULL DEFAULT '',
+    UNIQUE(case_id, kind, value)
 );
 CREATE TABLE IF NOT EXISTS events (
     id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, case_id TEXT, channel TEXT NOT NULL, type TEXT NOT NULL,
@@ -55,7 +56,22 @@ class Store:
         await self._db.execute("PRAGMA busy_timeout=5000")
         await self._db.execute("PRAGMA foreign_keys=ON")
         await self._db.executescript(SCHEMA)
+        await self._migrate()
+        await self._db.execute("CREATE INDEX IF NOT EXISTS idx_intel_norm ON intel_items(kind, norm)")
         await self._db.commit()
+
+    async def _migrate(self) -> None:
+        """Older databases have no intel_items.norm column: add it and backfill normalised values."""
+        from app.networks import normalise
+        async with self._db.execute("PRAGMA table_info(intel_items)") as cur:
+            cols = {r[1] for r in await cur.fetchall()}
+        if "norm" in cols:
+            return
+        await self._db.execute("ALTER TABLE intel_items ADD COLUMN norm TEXT NOT NULL DEFAULT ''")
+        async with self._db.execute("SELECT id, kind, value FROM intel_items") as cur:
+            rows = await cur.fetchall()
+        for rid, kind, value in rows:
+            await self._db.execute("UPDATE intel_items SET norm=? WHERE id=?", (normalise(kind, value), rid))
 
     async def close(self) -> None:
         if self._db is not None:
@@ -138,15 +154,26 @@ class Store:
 
     # ---------- intel ----------
     async def add_intel(self, case_id: str, kind: str, value: str, message_id: Optional[int]) -> bool:
+        """Stores the value as extracted plus its normalised form (field type = kind) for network matching."""
+        from app.networks import normalise
         async with self._lock:
             cur = await self.db.execute(
-                "INSERT OR IGNORE INTO intel_items (case_id, kind, value, message_id, first_seen) VALUES (?,?,?,?,?)",
-                (case_id, kind, value, message_id, utc_now()))
+                "INSERT OR IGNORE INTO intel_items (case_id, kind, value, message_id, first_seen, norm) "
+                "VALUES (?,?,?,?,?,?)",
+                (case_id, kind, value, message_id, utc_now(), normalise(kind, value)))
             await self.db.commit()
             return cur.rowcount == 1
 
     async def list_intel(self, case_id: str) -> list[dict]:
         return await self._all("SELECT * FROM intel_items WHERE case_id=? ORDER BY id", (case_id,))
+
+    async def network_rows(self) -> list[dict]:
+        """Every (field, normalised value) that appears in 2 or more cases, joined with case facts."""
+        return await self._all(
+            "SELECT i.case_id, i.kind, i.norm, i.first_seen, c.scam_type, c.created_at FROM intel_items i "
+            "JOIN cases c ON c.id = i.case_id WHERE i.norm != '' AND (i.kind, i.norm) IN ("
+            "SELECT kind, norm FROM intel_items WHERE norm != '' GROUP BY kind, norm "
+            "HAVING COUNT(DISTINCT case_id) >= 2)")
 
     # ---------- events ----------
     async def add_event(self, event: Event) -> int:

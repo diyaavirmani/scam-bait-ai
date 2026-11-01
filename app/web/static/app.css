@@ -62,3 +62,11 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .login input { width: 100%; padding: 8px; margin: 8px 0 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); font: inherit; }
 .err { color: var(--scam); }
 @media (max-width: 1000px) { main.layout, .detail { grid-template-columns: 1fr; } }
+.nets { margin-top: 14px; }
+.net-card { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; }
+.net-card .row1 { display: flex; justify-content: space-between; gap: 6px; }
+.net-card .sub { color: var(--muted); font-size: 12px; margin: 2px 0 4px; }
+.net-shared { margin: 4px 0; padding-left: 16px; font-size: 13px; }
+.net-cases a { margin-right: 6px; font-size: 12px; }
+.net-card.flash { border-color: var(--scam); animation: netflash 1s ease-in-out 3; }
+@keyframes netflash { 50% { background: var(--bubble-scammer); } }

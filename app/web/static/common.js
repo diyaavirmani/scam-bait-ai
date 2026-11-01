@@ -2,7 +2,7 @@
 var SB = (function () {
   "use strict";
   var TYPES = ["message.received", "persona.reply", "scam.detected", "intel.extracted", "case.summary",
-    "transcript.partial", "transcript.final", "call.status", "metrics.speed", "ratelimit.status", "task.retrying"];
+    "transcript.partial", "transcript.final", "call.status", "metrics.speed", "ratelimit.status", "task.retrying", "network.updated"];
 
   // Build DOM safely: strings become text nodes, never HTML (scammer text is untrusted).
   function h(tag, attrs) {

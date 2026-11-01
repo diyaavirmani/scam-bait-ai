@@ -41,6 +41,9 @@ class Bus:
                 log.warning("dropped a slow SSE subscriber; it will reconnect and replay")
             except Exception:
                 log.exception("fan-out failed")
+        if event.type == "intel.extracted":
+            from app.networks import on_intel_extracted
+            await on_intel_extracted(self, event)  # cheap SQL + union-find; emits network.updated; never raises
         return event
 
     def subscribe(self) -> asyncio.Queue:

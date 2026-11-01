@@ -61,7 +61,7 @@ VerdictLabel = Literal["scam", "not_scam", "unknown"]
 EventType = Literal[
     "message.received", "persona.reply", "scam.detected", "intel.extracted", "case.summary",
     "transcript.partial", "transcript.final", "call.status", "metrics.speed",
-    "ratelimit.status", "task.retrying",
+    "ratelimit.status", "task.retrying", "network.updated",
 ]
 IntelKind = Literal[
     "phone", "upi", "bank_account", "ifsc", "card", "url", "apk", "email", "crypto_wallet",

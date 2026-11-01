@@ -9,7 +9,40 @@
   var listPanel = h("aside", { class: "panel" }, h("h2", { text: "Cases" }), h("ul", { class: "list", id: "case-list" }),
     h("p", { class: "empty", id: "list-empty", text: "No cases yet." }));
   var detail = h("section", { id: "detail" });
+  var netPanel = h("div", { class: "panel nets" }, h("h2", { text: "Scammer networks" }), h("div", { id: "net-list" }),
+    h("p", { class: "empty", id: "net-empty", text: "No linked cases yet. Cases join a network when they share a UPI ID, phone, account, link or other identifier." }));
+  SB.append(listPanel, netPanel);
   SB.append(main, [listPanel, detail]);
+  S.nets = [];
+
+  // Shared identifiers are masked except the last 4 characters; the case page and export show full values.
+  function mask(v) {
+    v = String(v || "");
+    return v.length <= 4 ? v : new Array(v.length - 3).join("*") + v.slice(-4);
+  }
+
+  function renderNetworks(flashId) {
+    var box = SB.clear($("net-list"));
+    $("net-empty").hidden = S.nets.length > 0;
+    S.nets.forEach(function (n) {
+      var links = [];
+      n.case_ids.forEach(function (id) {
+        links.push(h("a", { href: "#" + id, class: "mono", onclick: function (e) { e.preventDefault(); select(id); } }, id), " ");
+      });
+      SB.append(box, h("div", { class: "net-card" + (n.network_id === flashId ? " flash" : ""), id: "net-" + n.network_id },
+        h("div", { class: "row1" }, h("span", { class: "mono", text: n.network_id }), h("span", { class: "badge scam", text: n.case_ids.length + " cases" })),
+        h("div", { class: "sub", text: n.scam_types.length ? n.scam_types.join(", ") : "scam type not set" }),
+        h("ul", { class: "net-shared" }, n.shared.map(function (x) {
+          return h("li", null, x.field + ": ", h("span", { class: "mono", text: mask(x.value) }), h("span", { class: "muted", text: " in " + x.case_count + " cases" }));
+        })),
+        h("div", { class: "net-cases" }, links)));
+    });
+    if (flashId) setTimeout(function () { var el = $("net-" + flashId); if (el) el.classList.remove("flash"); }, 4000);
+  }
+
+  function loadNetworks(flashId) {
+    return SB.api("/api/networks").then(function (r) { S.nets = r; renderNetworks(flashId); });
+  }
 
   function loadList() {
     return SB.api("/api/v1/cases?limit=200").then(function (r) {
@@ -124,9 +157,10 @@
   }
 
   var live = SB.stream();
-  loadList().then(function () {
+  loadList().then(function () { return loadNetworks(); }).then(function () {
     live.start(function (ev) {
       if (ev.type === "transcript.partial" || ev.type === "ratelimit.status" || ev.type === "metrics.speed") return;
+      if (ev.type === "network.updated") { loadNetworks((ev.data || {}).network_id); return; }
       var known = S.cases.some(function (c) { return c.id === ev.case_id; });
       if (!known) { reloadList(); return; }
       if (ev.case_id === S.sel) reload();

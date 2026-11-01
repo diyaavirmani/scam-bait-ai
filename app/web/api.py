@@ -83,3 +83,10 @@ async def list_cases(channel: Optional[str] = None, limit: int = 100, with_evide
 @router.get("/api/v1/cases/{case_id}")
 async def get_case(case_id: str) -> dict:
     return await case_detail(case_id)
+
+
+@router.get("/api/networks")
+async def list_networks() -> list:
+    """Scammer networks: cases sharing an identical normalised identifier, grouped with union-find."""
+    from app.networks import compute_networks
+    return await compute_networks(_store())

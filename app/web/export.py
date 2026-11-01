@@ -41,7 +41,8 @@ SUSPECT_FIELDS = [  # (CSV column, label, intel kinds)
 ]
 CSV_COLUMNS = (["case_id", "channel", "generated_at_ist", "incident_datetime_ist", "incident_details"]
                + [c for c, _, _ in SUSPECT_FIELDS]
-               + ["intel_kind", "intel_value", "intel_source", "intel_first_seen_ist", "intel_source_message"])
+               + ["intel_kind", "intel_value", "intel_source", "intel_first_seen_ist", "intel_source_message",
+                  "network_id"])
 FONT_CANDIDATES = [
     "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
     "/usr/share/fonts/dejavu/DejaVuSans.ttf",
@@ -154,7 +155,9 @@ async def build_pack(case_id: str) -> dict:
     for col, _, kinds in SUSPECT_FIELDS:
         ncrp[col] = "; ".join(i["value"] for i in intel if i["kind"] in kinds)
     verdicts = [e for e in events if e.type == "scam.detected"]
-    return {"case": case, "events": events, "messages": messages, "intel": intel, "report": report, "ncrp": ncrp,
+    from app.networks import compute_networks, network_for_case
+    network = network_for_case(await compute_networks(store), case_id)
+    return {"network": network, "case": case, "events": events, "messages": messages, "intel": intel, "report": report, "ncrp": ncrp,
             "verdicts": verdicts, "generated_at": datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S IST"),
             "stamp": datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ"),
             "transcript": transcript_text(case, messages, events)}
@@ -171,7 +174,8 @@ def render_csv(pack: dict) -> bytes:
     for i in rows:
         tail = ["", "", "", "", ""] if i is None else [i["kind"], i["value"], i.get("source") or "",
                                                          to_ist(i.get("first_seen")), i.get("source_message", "")]
-        w.writerow([_csv_cell(v) for v in base + tail])
+        net_id = pack["network"]["network_id"] if pack.get("network") else ""
+        w.writerow([_csv_cell(v) for v in base + tail + [net_id]])
     return buf.getvalue().encode("utf-8")
 
 
@@ -248,6 +252,18 @@ def render_pdf(pack: dict, csv_sha: str, transcript_sha: str) -> bytes:
                for i in pack["intel"]], (24, 45, 20, 33, 58))
     else:
         para("No intel items were extracted.")
+
+    heading("Scammer networks")
+    net = pack.get("network")
+    if net:
+        para(f"Network {net['network_id']}: {len(net['case_ids'])} cases share at least one identical identifier "
+             f"(exact match on normalised values). Cases: {', '.join(net['case_ids'])}. "
+             f"Scam types: {', '.join(net['scam_types']) or 'not set'}. "
+             f"First seen {to_ist(net['first_seen'])}, last seen {to_ist(net['last_seen'])}.")
+        table([["Field", "Shared value", "Cases"]] + [[x["field"], x["value"], str(x["case_count"])] for x in net["shared"]],
+              (35, 115, 30))
+    else:
+        para("This case shares no identifier with any other case.")
 
     heading("Summary")
     para(c.get("summary") or "No summary yet.")
