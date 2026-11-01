@@ -12,31 +12,31 @@ Text chats arrive on Telegram (and the kept `POST /api/v1/honeypot` API). Live p
 
 This is a rebuild of SCAM-BAIT (2026). `docs/AUDIT.md` lists what was broken in the old app, and `docs/CHANGES.md` maps every issue to its fix.
 
+## How it works
+
+![How it works: scammer sends message, safety check, LLM takes over, extracting secrets, report to authorities](docs/images/how-it-works.jpeg)
+
+1. **Scammer sends a message.** It arrives as a Telegram chat, a `POST /api/v1/honeypot` request or a live call on the Twilio number. The message is stored before anything else happens.
+2. **Safety check.** A fast regex prefilter, the Cerebras `qwen-3.8-27b` scam flag and OpenAI Decisions judge the opening messages together. Legitimate messages (an OTP, a meeting reminder) are not flagged.
+3. **The LLM takes over.** Once a scam is flagged, the persona "Meena" (Cerebras `gpt-oss-120b` on chats, GPT-Live on calls) plays a confused victim and keeps the scammer talking for 15 to 20 messages, remembering everything said so far.
+4. **Extracting secrets.** Every scammer message is mined for UPI IDs, phone numbers, bank accounts, IFSC codes, links, APKs and names, and each item is validated before it is saved.
+5. **Report to authorities.** When the chat or call ends, a case report and a 1 to 2 line summary are written, and the CSV + PDF evidence pack (SHA-256 hashed, NCRP / 1930 fields) is ready to file.
+
 ## Architecture
 
-```mermaid
-flowchart LR
-  tg[Telegram webhook] --> orch
-  api[POST /api/v1/honeypot] --> orch
-  orch[Orchestrator<br/>persist first, per-case lock, burst coalescing]
-  orch --> pre[Regex prefilter<br/>linear, capped]
-  orch --> flag[Cerebras qwen-3.8-27b<br/>strict-JSON scam flag]
-  orch --> dec[OpenAI Decisions gpt-6-luna]
-  flag --> e2{E2 ensemble}
-  dec --> e2
-  flag -. fast flag starts the persona .-> per
-  orch --> per[Cerebras gpt-oss-120b persona<br/>reply + intel + summary in one call]
-  per --> guard[Reply guard + moderation]
-  orch --> ext[Extraction<br/>token split + validators]
-  ext --> db[(SQLite WAL<br/>cases, messages, intel_items, events, evidence)]
-  per --> db
-  e2 --> db
-  db --> bus[Event bus] --> sse[SSE] --> ui[Dashboard<br/>Overview, Chats, Calls, Intel, Networks, Cases, System]
-  db --> rep[Case report<br/>gpt-oss-120b, background] --> pack[CSV + PDF + SHA-256]
-  call[Twilio number] --> tw[/voice/incoming<br/>signature check/] --> br[Media Streams bridge<br/>mark / clear barge-in]
-  br <--> live[OpenAI GPT-Live gpt-live-1<br/>persona voice for the whole call]
-  br --> orch2[Call transcript<br/>qwen batches + Decisions per utterance] --> db
-```
+![Architecture: detection, multi-agent orchestrator, persona and extraction agents, intelligence database](docs/images/architecture.jpeg)
+
+How the boxes map to the code:
+
+| Box | In this build |
+|---|---|
+| Agent 1: Detection | Regex prefilter + Cerebras `qwen-3.8-27b` flag + OpenAI Decisions, combined by the E2 rule (`app/detection`) |
+| Multi-agent | The orchestrator: stores each message first, runs detection, persona and extraction per turn, and decides when the case ends (`app/orchestrator`) |
+| Agent 2: Persona | Meena on Cerebras `gpt-oss-120b` for chats, GPT-Live `gpt-live-1` for calls (`app/persona`, `app/voice`) |
+| Agent 3: Extraction | Token-split regex and validators, merged with the intel the persona call returns (`app/extraction`) |
+| Intelligence database | SQLite: cases, messages, intel items, events and evidence hashes (`app/store`) |
+| Response to scammer | The persona reply, sent back on Telegram, the API or the call |
+| Callback to law enforcement | In this build nothing is sent automatically: the case report and the CSV + PDF evidence pack are produced for the user to file on 1930 / NCRP (`app/report`, `app/web/export.py`) |
 
 ## Cerebras + OpenAI split
 

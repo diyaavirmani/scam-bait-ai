@@ -1,0 +1,143 @@
+{
+  "_note": "real response, redacted, 1 Nov 2026",
+  "input": "We run a VIP stock trading group, members are earning 30% weekly returns.",
+  "response": {
+    "model": "gpt-6-luna",
+    "answers": [
+      {
+        "type": "predicate",
+        "name": "is_scam",
+        "probability": 0.88
+      },
+      {
+        "type": "choice",
+        "name": "scam_type",
+        "choice": "investment_trading",
+        "probabilities": [
+          {
+            "value": "investment_trading",
+            "probability": 0.98
+          },
+          {
+            "value": "crypto_investment",
+            "probability": 0.01
+          },
+          {
+            "value": "digital_arrest",
+            "probability": 0.0
+          },
+          {
+            "value": "sextortion",
+            "probability": 0.0
+          },
+          {
+            "value": "job_task",
+            "probability": 0.0
+          },
+          {
+            "value": "customer_care",
+            "probability": 0.0
+          },
+          {
+            "value": "kyc_phishing",
+            "probability": 0.0
+          },
+          {
+            "value": "upi_collect",
+            "probability": 0.0
+          },
+          {
+            "value": "delivery_phishing",
+            "probability": 0.0
+          },
+          {
+            "value": "utility_bill",
+            "probability": 0.0
+          },
+          {
+            "value": "lottery_prize",
+            "probability": 0.0
+          },
+          {
+            "value": "loan_offer",
+            "probability": 0.0
+          },
+          {
+            "value": "other",
+            "probability": 0.0
+          },
+          {
+            "value": "not_a_scam",
+            "probability": 0.01
+          }
+        ],
+        "confidence": 0.98
+      },
+      {
+        "type": "predicate",
+        "name": "promises_assured_returns",
+        "probability": 0.04
+      },
+      {
+        "type": "predicate",
+        "name": "group_reinvite",
+        "probability": 0.0
+      },
+      {
+        "type": "predicate",
+        "name": "pay_to_personal_account",
+        "probability": 0.02
+      },
+      {
+        "type": "predicate",
+        "name": "withdrawal_fee_demand",
+        "probability": 0.38
+      },
+      {
+        "type": "predicate",
+        "name": "credential_request",
+        "probability": 0.0
+      },
+      {
+        "type": "score",
+        "name": "risk",
+        "score": 1.09,
+        "probabilities": [
+          {
+            "value": 0,
+            "label": "None",
+            "probability": 0.1
+          },
+          {
+            "value": 1,
+            "label": "Low",
+            "probability": 0.72
+          },
+          {
+            "value": 2,
+            "label": "High",
+            "probability": 0.17
+          },
+          {
+            "value": 3,
+            "label": "Critical",
+            "probability": 0.01
+          }
+        ],
+        "confidence": 0.71
+      }
+    ],
+    "usage": {
+      "input_tokens": 1331,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens": 0,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 1331
+    }
+  }
+}
