@@ -1,0 +1,23 @@
+{
+  "_note": "docs-derived example, not a real API response. Field names follow developers.openai.com/api/docs/guides/decisions (read 1 Nov 2026); values are made up.",
+  "answers": [
+    {"type": "predicate", "name": "is_scam", "probability": 0.92},
+    {"type": "choice", "name": "scam_type", "choice": "investment_trading",
+     "probabilities": [{"value": "investment_trading", "probability": 0.81},
+                       {"value": "crypto_investment", "probability": 0.12},
+                       {"value": "not_a_scam", "probability": 0.07}],
+     "confidence": 0.81},
+    {"type": "predicate", "name": "promises_assured_returns", "probability": 0.95},
+    {"type": "predicate", "name": "group_reinvite", "probability": 0.04},
+    {"type": "predicate", "name": "pay_to_personal_account", "probability": 0.33},
+    {"type": "predicate", "name": "withdrawal_fee_demand", "probability": 0.02},
+    {"type": "refusal", "name": "credential_request"},
+    {"type": "score", "name": "risk", "score": 2.1,
+     "probabilities": [{"value": 0, "label": "none", "probability": 0.02},
+                       {"value": 1, "label": "low", "probability": 0.1},
+                       {"value": 2, "label": "high", "probability": 0.63},
+                       {"value": 3, "label": "critical", "probability": 0.25}],
+     "confidence": 0.63}
+  ],
+  "usage": {"input_tokens": 612, "input_tokens_details": {"cached_tokens": 512, "cache_write_tokens": 0}}
+}
