@@ -32,7 +32,7 @@ Old code: `diyaavirmani/SCAM-BAIT` at `d2d89a0` (read-only reference). New code:
 | V-07 | medium | GPT-Live handles speech in and out (no fixed en-US STT) | `app/voice/live_protocol.py` | Not verified live |
 | V-08 | low | Call end runs once whether stop, socket close or the status callback fires | `app/voice/state.py` (`finish_call`), `app/orchestrator` (`end_call`) | `test_d_bridge`, `test_call_pipeline` |
 | V-09 | low | Every URL comes from `PUBLIC_BASE_URL`, never the Host header | `app/voice/__init__.py` | `test_d_webhook` |
-| A-01 | high | Dashboard renders only API and SSE data, with real empty states | `app/web/static` | `test_c_web` (no sample values in static files) |
+| A-01 | high | Dashboard renders only API and SSE data, with real empty states | `dashboard/src` (built to `app/web/dist`) | `test_c_web` (no sample values in the dashboard source, no banned characters in the build) |
 | A-02 | high | One typed event schema for text and voice, all event types emitted | `app/models.py` (`Event`), `app/events` | `test_c_events` |
 | A-03 | high | Reopened on purpose for the demo: the dashboard, its API, the SSE stream and the exports are open with no login, so anyone with the URL can read cases. No CORS is enabled. Add a login back before real use | `app/web` | `test_c_web` (open access) |
 | A-04 | high | `/health` runs real checks (503 when degraded); a fallback reply sets `status: degraded` and `meta.degraded`; no global 200 handler | `app/main.py`, `app/channels/honeypot.py` | `test_smoke`, `test_b_honeypot` |

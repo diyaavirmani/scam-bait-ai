@@ -14,7 +14,8 @@ from app.models import Event
 from app.runtime import Runtime, set_runtime
 from app.store import Store
 
-STATIC = Path(web.__file__).parent / "static"
+DIST = Path(web.__file__).parent / "dist"
+SRC = Path(__file__).resolve().parent.parent / "dashboard" / "src"
 
 
 def _app():
@@ -40,11 +41,11 @@ async def _login(client):
     return None
 
 
-@pytest.mark.parametrize("path", ["/chats", "/calls", "/cases", "/export"])
+@pytest.mark.parametrize("path", ["/", "/chats", "/calls", "/intel", "/networks", "/cases", "/export", "/system"])
 async def test_pages_open_without_login(env, path):
     _, client = env
     r = await client.get(path)
-    assert r.status_code == 200 and "text/html" in r.headers["content-type"]
+    assert r.status_code == 200 and "text/html" in r.headers["content-type"] and 'id="root"' in r.text
 
 
 @pytest.mark.parametrize("path", ["/api/v1/cases", "/api/networks"])
@@ -81,14 +82,21 @@ async def test_case_api_returns_real_data(env):
 
 async def test_assets_served_and_path_safe(env):
     _, client = env
-    assert (await client.get("/dashboard/assets/common.js")).status_code == 200
-    assert (await client.get("/dashboard/assets/..%2Fpages.py")).status_code == 404
+    name = next((DIST / "assets").glob("*.js")).name
+    r = await client.get(f"/assets/{name}")
+    assert r.status_code == 200 and "javascript" in r.headers["content-type"]
+    assert (await client.get("/assets/..%2F..%2Fpages.py")).status_code == 404
+    assert (await client.get("/assets/nope.js")).status_code == 404
 
 
-def test_static_files_have_no_sample_values():
-    banned = ["+91", "@paytm", "@okaxis", "@ybl", "9000000", "Rahul", "GOLD77", "lorem", "Math.random", "c_0", "CA0"]
-    for f in STATIC.iterdir():
+def test_dashboard_has_no_sample_values_or_banned_chars():
+    banned = ["+91", "@paytm", "@okaxis", "@ybl", "9000000", "Rahul", "GOLD77", "lorem", "Math.random",
+              "INITIAL_", "MOCK_", "c_0", "CA0"]
+    files = [f for f in SRC.rglob("*") if f.is_file()]
+    assert files
+    for f in files:
         text = f.read_text(encoding="utf-8")
         for b in banned:
             assert b not in text, f"{f.name} contains sample value {b!r}"
-        assert not re.search("[\u2014\U0001F300-\U0001FAFF\u2600-\u27BF]", text), f.name
+    for f in [DIST / "index.html", *(DIST / "assets").iterdir()]:
+        assert not re.search("[\u2014\U0001F300-\U0001FAFF\u2600-\u27BF]", f.read_text(encoding="utf-8")), f.name

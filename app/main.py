@@ -5,7 +5,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse
 
 from app.channels import router as channels_router
 from app.channels import telegram as telegram_channel
@@ -69,10 +69,6 @@ def create_app(settings: Settings | None = None, *, run_startup: bool = True) ->
     app.include_router(channels_router)
     app.include_router(web_router)
     app.include_router(alt_router)
-
-    @app.get("/", include_in_schema=False)
-    async def root():
-        return RedirectResponse("/chats")
 
     @app.get("/health")
     async def health():

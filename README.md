@@ -31,7 +31,7 @@ flowchart LR
   ext --> db[(SQLite WAL<br/>cases, messages, intel_items, events, evidence)]
   per --> db
   e2 --> db
-  db --> bus[Event bus] --> sse[SSE] --> ui[Dashboard<br/>Chats, Calls, Cases, Export]
+  db --> bus[Event bus] --> sse[SSE] --> ui[Dashboard<br/>Overview, Chats, Calls, Intel, Networks, Cases, System]
   db --> rep[Case report<br/>gpt-oss-120b, background] --> pack[CSV + PDF + SHA-256]
   call[Twilio number] --> tw[/voice/incoming<br/>signature check/] --> br[Media Streams bridge<br/>mark / clear barge-in]
   br <--> live[OpenAI GPT-Live gpt-live-1<br/>persona voice for the whole call]
@@ -63,6 +63,14 @@ cp .env.example .env    # fill in values yourself; never commit .env
 ```
 
 Only `OPENAI_API_KEY` and `CEREBRAS_API_KEY` are required. The dashboard is open, with no login. The app refuses to start if a required setting is missing or a pinned Cerebras model is not served (startup self-test). `GET /health` reports the database, the model self-test and Decisions availability.
+
+### Dashboard
+
+The dashboard is a React app in `dashboard/` (the original SCAM-BAIT design) built into `app/web/dist`, which FastAPI serves on the same origin as the API at `/`, `/chats`, `/calls`, `/intel`, `/networks`, `/cases` and `/system`. Live updates come from the SSE stream. The build is committed, so the server needs no Node. To rebuild (Node 20 or newer):
+
+```bash
+cd dashboard && npm ci && npm run build
+```
 
 ### Environment variables (names only)
 

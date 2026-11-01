@@ -87,7 +87,7 @@ seen_keys(key TEXT PK, ts TEXT)   -- idempotency (Telegram update_id, Twilio Cal
 | `POST /telegram/webhook` (`X-Telegram-Bot-Api-Secret-Token`, `update_id` idempotency, typing indicator) | B |
 | `POST /voice/incoming`, `POST /voice/status`, `POST /voice/stream-status`, `WS /voice/stream` | D |
 | `GET /api/v1/events/stream` (SSE, `Last-Event-ID` replay), `GET /api/v1/cases`, `GET /api/v1/cases/{id}`, `GET /api/v1/cases/{id}/export.csv`, `.pdf` | C |
-| `GET /chats`, `/calls`, `/cases`, `/export` (open, no login) | C |
+| `GET /`, `/chats`, `/calls`, `/intel`, `/networks`, `/cases`, `/export`, `/system` (React SPA from `app/web/dist`, open, no login) and `GET /assets/{name}` | C |
 | `GET /api/networks` (scammer networks, open) | C (integrator add-on) |
 | `GET /health` (DB ping, model self-test result, Decisions availability) | Integrator |
 
