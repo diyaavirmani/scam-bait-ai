@@ -9,7 +9,7 @@ Usage:
   .venv/bin/python scripts/fake_events.py --port 8022 --delay 0.5
   .venv/bin/python scripts/fake_events.py --no-serve --db out/fake.db   # only fill a DB and exit
 
-The dev server prints a one-off dashboard password (or uses DASHBOARD_PASSWORD if set). Track C.
+The dev server serves the open dashboard (no login). Track C.
 """
 from __future__ import annotations
 
@@ -171,14 +171,14 @@ async def play_all(store, bus, delay: float) -> list[str]:
     return [await play_chat(store, bus, delay), await play_call(store, bus, delay)]
 
 
-def build_app(store, password: str):
+def build_app(store):
     from fastapi import FastAPI
     from fastapi.responses import RedirectResponse
 
     import app.events as events
     import app.web as web
 
-    settings = Settings(dashboard_password=password, public_base_url="")
+    settings = Settings(public_base_url="")
     bus = Bus(store)
     set_runtime(Runtime(settings=settings, store=store, bus=bus))
     fast = FastAPI(title="SCAM-BAIT fake dashboard")
@@ -217,12 +217,11 @@ def main() -> None:
 
     import uvicorn
 
-    password = os.getenv("DASHBOARD_PASSWORD") or secrets.token_urlsafe(9)
     store = Store(args.db)
 
     async def serve():
         await store.init()
-        fast, bus = build_app(store, password)
+        fast, bus = build_app(store)
 
         async def player():
             await asyncio.sleep(args.start_after)
@@ -235,8 +234,6 @@ def main() -> None:
             task.cancel()
             await store.close()
 
-    if not os.getenv("DASHBOARD_PASSWORD"):
-        print(f"one-off dev dashboard password: {password}")
     print(f"open http://127.0.0.1:{args.port}/chats (the stream starts in {args.start_after:.0f} s)", flush=True)
     asyncio.run(serve())
 

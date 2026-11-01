@@ -1,6 +1,6 @@
 """POST /api/v1/honeypot: the kept contract of the old app (HoneypotRequest -> JudgeResponse). Track B, commit 12.
 
-- x-api-key is compared in constant time with API_KEY. An unset API_KEY gives 503, never open access (A-05).
+- x-api-key is compared in constant time with API_KEY when API_KEY is set; an empty API_KEY leaves the route open.
 - sessionId must match SESSION_ID_RE (400 otherwise); it is only used as a lookup key, never in a path (P-01).
 - message.sender must be exactly "scammer" (server-assigned roles, PI-02). conversationHistory is accepted
   for compatibility and ignored: the server owns the history.
@@ -36,7 +36,7 @@ def require_api_key(x_api_key: Optional[str] = Header(default=None, alias="x-api
     except RuntimeError:
         raise HTTPException(status_code=503, detail="Service starting")
     if not expected:
-        raise HTTPException(status_code=503, detail="API key not configured")
+        return  # no API_KEY configured: the route is open (demo setting)
     if not x_api_key or not hmac.compare_digest(x_api_key.encode("utf-8"), expected.encode("utf-8")):
         raise HTTPException(status_code=401, detail="Invalid API key")
 

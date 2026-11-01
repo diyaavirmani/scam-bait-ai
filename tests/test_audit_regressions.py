@@ -74,7 +74,7 @@ def test_P01_P02_no_log_files_and_session_id_rule():
 
 
 def test_A05_constant_time_key_checks():
-    assert APP_SRC.count("hmac.compare_digest") >= 3  # API key, Telegram secret, dashboard password
+    assert APP_SRC.count("hmac.compare_digest") >= 2  # API key (when set) and the Telegram webhook secret
 
 
 def test_C01_single_worker():

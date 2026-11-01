@@ -16,7 +16,6 @@ from app.models import Event
 from app.runtime import Runtime, set_runtime
 from app.store import Store
 
-PW = "pw-test-only"
 
 
 def test_normalise():
@@ -43,12 +42,11 @@ async def env(tmp_path, monkeypatch):
         return await orig(event)
 
     bus.emit = spy
-    rt = Runtime(settings=Settings(dashboard_password=PW, public_base_url=""), store=store, bus=bus)
+    rt = Runtime(settings=Settings(public_base_url=""), store=store, bus=bus)
     set_runtime(rt)
     a = FastAPI()
     a.include_router(web.router)
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=a), base_url="http://test") as client:
-        await client.post("/login", data={"password": PW})
         yield rt, client, seen
     await store.close()
 
@@ -107,10 +105,10 @@ async def test_generic_fields_never_link(env):
     assert await networks.compute_networks(rt.store) == []
 
 
-async def test_networks_api_requires_login(env):
+async def test_networks_api_open_without_login(env):
     _rt, client, _seen = env
     client.cookies.clear()
-    assert (await client.get("/api/networks")).status_code == 401
+    assert (await client.get("/api/networks")).status_code == 200
 
 
 async def test_old_database_is_migrated(tmp_path):

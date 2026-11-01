@@ -19,13 +19,12 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from fastapi.responses import Response
 
 from app.web.api import case_events, intel_with_source, load_case
-from app.web.auth import require_api
 
-router = APIRouter(dependencies=[Depends(require_api)])
+router = APIRouter()
 
 IST = timezone(timedelta(hours=5, minutes=30))
 NCRP_BANNED = set("#$@^*`'~|!") | {"‘", "’"}

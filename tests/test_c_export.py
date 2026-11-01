@@ -16,7 +16,6 @@ from app.models import Event
 from app.runtime import Runtime, set_runtime
 from app.store import Store
 
-PW = "pw-test-only"
 HINDI = "नमस्ते बेटा"  # Devanagari, not Latin-1
 
 
@@ -29,12 +28,11 @@ async def env(tmp_path, monkeypatch):
     monkeypatch.setenv("EXPORT_DIR", str(tmp_path / "exports"))
     store = Store(str(tmp_path / "x.db"))
     await store.init()
-    rt = Runtime(settings=Settings(dashboard_password=PW, public_base_url=""), store=store, bus=Bus(store))
+    rt = Runtime(settings=Settings(public_base_url=""), store=store, bus=Bus(store))
     set_runtime(rt)
     a = FastAPI()
     a.include_router(web.router)
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=a), base_url="http://test") as client:
-        await client.post("/login", data={"password": PW})
         yield rt, client
     await store.close()
 
@@ -115,10 +113,9 @@ async def test_export_unknown_case_404(env):
     assert (await client.get("/api/v1/cases/nope/export.pdf")).status_code == 404
 
 
-async def test_export_requires_login(env):
+async def test_export_open_without_cookie_or_header(env):
     rt, client = env
     cid, _ = await _case(rt)
     client.cookies.clear()
     for ext in ("csv", "pdf"):
-        assert (await client.get(f"/api/v1/cases/{cid}/export.{ext}")).status_code == 401
-    assert await rt.store.list_evidence(cid) == []
+        assert (await client.get(f"/api/v1/cases/{cid}/export.{ext}")).status_code == 200

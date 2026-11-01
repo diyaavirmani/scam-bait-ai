@@ -4,11 +4,10 @@ from __future__ import annotations
 import re
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 
-from app.web.auth import require_api
 
-router = APIRouter(dependencies=[Depends(require_api)])
+router = APIRouter()
 
 CASE_ID_RE = re.compile(r"^c_[0-9a-f]{12}$")
 MAX_TURNS = 20

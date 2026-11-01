@@ -2,7 +2,7 @@
 
 Built in parallel with app/web (Track C) so the integrator can compare both against docs/DEMO_SCRIPT.md.
 Reuses the shared contracts only: the SSE stream at GET /api/v1/events/stream, app.models.Event types and the
-login cookie from app/web/auth.py (imported read-only). It renders only real data from the store and the stream;
+dashboard (open, no login). It renders only real data from the store and the stream;
 there is no mock data anywhere (A-01). All text is inserted with textContent in the browser (no HTML injection).
 """
 from __future__ import annotations
@@ -15,10 +15,9 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 
-from app.web.auth import is_authed, login_redirect, require_api
 
 router = APIRouter(prefix="/alt")
 
@@ -67,8 +66,6 @@ def _check_case_id(case_id: str) -> None:
 
 # ---------------------------------------------------------------- pages
 def _page(request: Request, name: str):
-    if not is_authed(request):
-        return login_redirect(request)
     return HTMLResponse((STATIC / f"{name}.html").read_text(encoding="utf-8"))
 
 
@@ -103,7 +100,7 @@ async def _case_view(case: dict) -> dict:
             "created_ist": to_ist(case["created_at"]), "updated_ist": to_ist(case["updated_at"])}
 
 
-@router.get("/api/cases", dependencies=[Depends(require_api)])
+@router.get("/api/cases")
 async def api_cases(channel: Optional[str] = None, limit: int = 100):
     rows = await _rt().store.list_cases(min(max(limit, 1), 500))
     if channel == "chat":
@@ -113,7 +110,7 @@ async def api_cases(channel: Optional[str] = None, limit: int = 100):
     return {"cases": [await _case_view(r) for r in rows]}
 
 
-@router.get("/api/cases/{case_id}", dependencies=[Depends(require_api)])
+@router.get("/api/cases/{case_id}")
 async def api_case(case_id: str):
     _check_case_id(case_id)
     store = _rt().store
@@ -137,7 +134,7 @@ async def api_case(case_id: str):
     }
 
 
-@router.get("/api/stream-cursor", dependencies=[Depends(require_api)])
+@router.get("/api/stream-cursor")
 async def api_cursor():
     """Highest stored event id, so a page can open the SSE stream with ?last_id= and miss nothing."""
     async with _rt().store.db.execute("SELECT COALESCE(MAX(id), 0) FROM events") as cur:
@@ -299,19 +296,19 @@ async def _export(case_id: str) -> dict:
     return {"paths": {k: str(p) for k, (p, _) in files.items()}, "hashes": hashes, "ncrp": fields}
 
 
-@router.post("/api/cases/{case_id}/export", dependencies=[Depends(require_api)])
+@router.post("/api/cases/{case_id}/export")
 async def api_export(case_id: str):
     return JSONResponse(await _export(case_id))
 
 
-@router.get("/api/cases/{case_id}/export.csv", dependencies=[Depends(require_api)])
+@router.get("/api/cases/{case_id}/export.csv")
 async def api_export_csv(case_id: str):
     res = await _export(case_id)
     return FileResponse(res["paths"]["csv"], media_type="text/csv", filename=f"{case_id}.csv",
                         headers={"X-SHA256": res["hashes"]["csv_sha256"]})
 
 
-@router.get("/api/cases/{case_id}/export.pdf", dependencies=[Depends(require_api)])
+@router.get("/api/cases/{case_id}/export.pdf")
 async def api_export_pdf(case_id: str):
     res = await _export(case_id)
     return FileResponse(res["paths"]["pdf"], media_type="application/pdf", filename=f"{case_id}.pdf",

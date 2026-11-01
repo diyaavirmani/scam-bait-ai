@@ -18,7 +18,7 @@ from app.store import Store
 async def rt(tmp_path):
     store = Store(str(tmp_path / "c.db"))
     await store.init()
-    runtime = Runtime(settings=Settings(dashboard_password="pw-test", public_base_url=""), store=store, bus=Bus(store))
+    runtime = Runtime(settings=Settings(public_base_url=""), store=store, bus=Bus(store))
     set_runtime(runtime)
     yield runtime
     await store.close()
@@ -113,8 +113,6 @@ async def test_sse_dropped_subscriber_stream_closes(rt):
         await gen.__anext__()
 
 
-def test_sse_route_requires_login(rt):
-    app = FastAPI()
-    app.include_router(events_router)
-    r = TestClient(app).get("/api/v1/events/stream")
-    assert r.status_code == 401
+def test_sse_route_is_open(rt):
+    route = next(r for r in events_router.routes if getattr(r, "path", "") == "/api/v1/events/stream")
+    assert route.dependant.dependencies == []  # no login or header needed

@@ -23,3 +23,12 @@ def test_health_is_not_fake_when_runtime_missing():
     client = TestClient(create_app(run_startup=False))
     r = client.get("/health")
     assert r.status_code == 503 and r.json()["checks"]["database"] is False
+
+
+def test_only_model_keys_are_required(monkeypatch):
+    from app.config import Settings
+    monkeypatch.setenv("OPENAI_API_KEY", "x")
+    monkeypatch.setenv("CEREBRAS_API_KEY", "x")
+    for name in ("API_KEY", "DASHBOARD_PASSWORD"):
+        monkeypatch.delenv(name, raising=False)
+    assert Settings().missing_required() == []

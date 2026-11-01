@@ -62,7 +62,7 @@ cp .env.example .env    # fill in values yourself; never commit .env
 ./scripts/run.sh        # one command: creates .venv on first run, then starts one uvicorn worker on 127.0.0.1:8000
 ```
 
-The app refuses to start if a required setting is missing or a pinned Cerebras model is not served (startup self-test). `GET /health` reports the database, the model self-test and Decisions availability.
+Only `OPENAI_API_KEY` and `CEREBRAS_API_KEY` are required. The dashboard is open, with no login. The app refuses to start if a required setting is missing or a pinned Cerebras model is not served (startup self-test). `GET /health` reports the database, the model self-test and Decisions availability.
 
 ### Environment variables (names only)
 
@@ -75,8 +75,7 @@ The app refuses to start if a required setting is missing or a pinned Cerebras m
 | `PUBLIC_BASE_URL` | Your public https URL (ngrok); every webhook and stream URL is built from it |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` | Telegram bot and its webhook secret header |
 | `DEMO_MODE` | `1` during the judged demo: blocks eval runs |
-| `API_KEY` | `x-api-key` for `POST /api/v1/honeypot` |
-| `DASHBOARD_PASSWORD` | Dashboard login |
+| `API_KEY` | Optional `x-api-key` for `POST /api/v1/honeypot`; empty leaves the route open |
 | `PERSONA_MODEL`, `FLAG_MODEL`, `DECISIONS_MODEL`, `LIVE_MODEL`, `CALL_BATCH_SECONDS`, `DB_PATH` | Optional; defaults in `.env.example` |
 
 ## Demo
@@ -86,7 +85,7 @@ Full script: `docs/DEMO_SCRIPT.md`.
 **Telegram chat**
 1. Start the app and `ngrok http 8000`; set `PUBLIC_BASE_URL` to the ngrok https URL.
 2. Register the webhook once: `.venv/bin/python scripts/set_telegram_webhook.py`.
-3. Open `PUBLIC_BASE_URL/chats` on the laptop (log in with `DASHBOARD_PASSWORD`) and the bot on your phone.
+3. Open `PUBLIC_BASE_URL/chats` on the laptop (no login) and the bot on your phone.
 4. Send the DEMO_SCRIPT messages L1, L2 and 1 to 18. Watch the qwen flag and the Decisions verdict, the persona reply, the intel, the rolling summary and the Cerebras speed meter appear live. Message 15 checks that the persona remembers message 1. "ok bye" closes the case; the Cases page then shows the report, and Export gives the CSV and PDF with their SHA-256 hashes.
 
 **Phone call**

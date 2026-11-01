@@ -12,11 +12,10 @@ import asyncio
 import json
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 
 from app.models import Event
-from app.web.auth import require_api
 
 router = APIRouter()
 
@@ -72,7 +71,7 @@ async def event_stream(request: Request, bus, store, last_id: Optional[int], kee
         bus.unsubscribe(q)
 
 
-@router.get("/api/v1/events/stream", dependencies=[Depends(require_api)])
+@router.get("/api/v1/events/stream")
 async def stream(request: Request, last_id: Optional[str] = None):
     from app.runtime import get_runtime
     rt = get_runtime()

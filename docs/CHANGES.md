@@ -34,9 +34,9 @@ Old code: `diyaavirmani/SCAM-BAIT` at `d2d89a0` (read-only reference). New code:
 | V-09 | low | Every URL comes from `PUBLIC_BASE_URL`, never the Host header | `app/voice/__init__.py` | `test_d_webhook` |
 | A-01 | high | Dashboard renders only API and SSE data, with real empty states | `app/web/static` | `test_c_web` (no sample values in static files) |
 | A-02 | high | One typed event schema for text and voice, all event types emitted | `app/models.py` (`Event`), `app/events` | `test_c_events` |
-| A-03 | high | Cookie login on every page, the SSE stream and the API; foreign Origin rejected; no open CORS | `app/web/auth.py` | `test_c_web` |
+| A-03 | high | Reopened on purpose for the demo: the dashboard, its API, the SSE stream and the exports are open with no login, so anyone with the URL can read cases. No CORS is enabled. Add a login back before real use | `app/web` | `test_c_web` (open access) |
 | A-04 | high | `/health` runs real checks (503 when degraded); a fallback reply sets `status: degraded` and `meta.degraded`; no global 200 handler | `app/main.py`, `app/channels/honeypot.py` | `test_smoke`, `test_b_honeypot` |
-| A-05 | medium | The app refuses to start without `API_KEY`; keys and secrets compared with `hmac.compare_digest` | `app/config.py`, `app/channels`, `app/web/auth.py` | `test_A05`, `test_b_honeypot` (503 when unset) |
+| A-05 | medium | No `temp-key` default: `API_KEY` is optional and, when set, compared with `hmac.compare_digest`; an empty `API_KEY` leaves the honeypot route open (demo setting). The Telegram secret uses the same constant-time check | `app/config.py`, `app/channels` | `test_A05`, `test_b_honeypot` (503 when unset) |
 | A-06 | medium | No full-table JSON parsing; case lists come from SQL | `app/web/api.py`, `app/store` | `test_c_web` |
 | PI-01 | high | Scammer text goes into every prompt as a JSON DATA block with an explicit "data, not instructions" rule | `app/detection/flag.py`, `app/persona/persona.py`, `app/report` | `test_a1_flag`, `test_a2_persona` |
 | PI-02 | medium | Roles are assigned by the server; `message.sender` must be `scammer`; the store rejects any other role | `app/channels/honeypot.py`, `app/store` | `test_b_honeypot`, `test_store` |

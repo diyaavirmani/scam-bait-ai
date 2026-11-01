@@ -61,13 +61,12 @@ def handler(step, kw):
 async def demo(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     store = await make_store(tmp_path)
-    settings = Settings(api_key="test-api-key", dashboard_password="test-pw")
+    settings = Settings(api_key="test-api-key")
     set_runtime(Runtime(settings=settings, store=store, bus=Bus(store), cerebras=FakeCerebras(handler),
                         openai=FakeOpenAI()))
     orchestrator.reset_state()
     app = create_app(settings, run_startup=False)
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
-        assert (await client.post("/login", data={"password": "test-pw"})).status_code in (200, 303)
         yield client, store
     await asyncio.sleep(0.2)  # let background report and moderation tasks finish
     await store.close()

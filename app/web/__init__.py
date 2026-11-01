@@ -1,4 +1,4 @@
-"""Track C dashboard: login, pages (/chats, /calls, /cases, /export), JSON API and exports.
+"""Track C dashboard: pages (/chats, /calls, /cases, /export), JSON API and exports. Open, no login.
 
 `router` includes everything; app/main.py does `app.include_router(app.web.router)`.
 """

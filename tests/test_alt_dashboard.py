@@ -1,4 +1,4 @@
-"""Side-by-side dashboard (/alt): auth, real-data snapshot API, export hashes and NCRP fields, no mock data."""
+"""Side-by-side dashboard (/alt): open access, real-data snapshot API, export hashes and NCRP fields, no mock data."""
 import hashlib
 import re
 from pathlib import Path
@@ -12,16 +12,13 @@ from app.events import Bus
 from app.models import Event
 from app.runtime import Runtime, set_runtime
 from app.store import Store
-from app.web.auth import COOKIE_NAME, make_cookie
 from app.web_alt import NCRP_BANNED, router
 
 STATIC = Path("app/web_alt/static")
-PASSWORD = "test-dash-pass"
 
 
 @pytest.fixture
 async def env(tmp_path, monkeypatch):
-    monkeypatch.setenv("DASHBOARD_PASSWORD", PASSWORD)
     store = Store(str(tmp_path / "alt.db"))
     await store.init()
     bus = Bus(store)
@@ -54,16 +51,15 @@ async def env(tmp_path, monkeypatch):
 
 
 def authed(client):
-    client.cookies.set(COOKIE_NAME, make_cookie(PASSWORD))
+    """The dashboard is open; kept so the tests below read the same."""
     return client
 
 
-def test_pages_and_api_require_login(env):
+def test_pages_and_api_open_without_login(env):
     client, _, cid = env
-    r = client.get("/alt/chats", follow_redirects=False)
-    assert r.status_code == 303 and r.headers["location"].startswith("/login")
-    assert client.get("/alt/api/cases").status_code == 401
-    assert client.get(f"/alt/api/cases/{cid}/export.csv").status_code == 401
+    assert client.get("/alt/chats", follow_redirects=False).status_code == 200
+    assert client.get("/alt/api/cases").status_code == 200
+    assert client.get(f"/alt/api/cases/{cid}/export.csv").status_code == 200
 
 
 def test_pages_render_with_panels(env):

@@ -28,7 +28,6 @@ function pct(p) { return (p === null || p === undefined) ? "n/a" : (Math.round(p
 function verdictBadge(v) { const b = el("span", "badge v-" + (v || "unknown"), (v || "unknown").replace("_", " ")); return b; }
 async function api(url, opts) {
   const r = await fetch(url, Object.assign({ credentials: "same-origin" }, opts || {}));
-  if (r.status === 401) { location.href = "/login?next=" + encodeURIComponent(location.pathname); throw new Error("401"); }
   if (!r.ok) throw new Error(url + " " + r.status);
   return r.json();
 }
@@ -259,7 +258,7 @@ function onEvent(e) {
 async function connect() {
   const conn = document.getElementById("conn");
   let last = 0;
-  try { last = (await api("/alt/api/stream-cursor")).last_id; } catch (e) { /* login redirect handled in api() */ }
+  try { last = (await api("/alt/api/stream-cursor")).last_id; } catch (e) { /* stream starts from the beginning */ }
   const es = new EventSource("/api/v1/events/stream?last_id=" + last, { withCredentials: true });
   es.onopen = () => { conn.textContent = "live"; conn.className = "live"; };
   es.onerror = () => { conn.textContent = "reconnecting"; conn.className = "down"; };

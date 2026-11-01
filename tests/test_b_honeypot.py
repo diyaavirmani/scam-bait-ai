@@ -82,11 +82,10 @@ async def test_bad_key_401(monkeypatch):
     assert calls == []
 
 
-async def test_unset_key_503(monkeypatch):
+async def test_unset_key_leaves_route_open(monkeypatch):
     client, calls, _ = _setup(monkeypatch, api_key="")
-    r = await client.post("/api/v1/honeypot", json=_body(), headers={"x-api-key": ""})
-    assert r.status_code == 503 and r.json()["detail"] == "API key not configured"
-    assert calls == []
+    r = await client.post("/api/v1/honeypot", json=_body())
+    assert r.status_code == 200 and len(calls) == 1
 
 
 @pytest.mark.parametrize("sid", ["../../x", "a/b", "x" * 65, "", "a b"])

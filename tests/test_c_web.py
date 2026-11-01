@@ -1,4 +1,4 @@
-"""Track C, commit 18: dashboard auth, pages, case API, no mock data in the static files."""
+"""Track C, commit 18: open dashboard pages (no login), case API, no mock data in the static files."""
 import re
 from pathlib import Path
 
@@ -13,9 +13,7 @@ from app.events import Bus
 from app.models import Event
 from app.runtime import Runtime, set_runtime
 from app.store import Store
-from app.web.auth import COOKIE_NAME, cookie_valid, make_cookie
 
-PW = "pw-test-only"
 STATIC = Path(web.__file__).parent / "static"
 
 
@@ -30,7 +28,7 @@ def _app():
 async def env(tmp_path):
     store = Store(str(tmp_path / "w.db"))
     await store.init()
-    rt = Runtime(settings=Settings(dashboard_password=PW, public_base_url="https://sb.example"), store=store, bus=Bus(store))
+    rt = Runtime(settings=Settings(public_base_url="https://sb.example"), store=store, bus=Bus(store))
     set_runtime(rt)
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=_app()), base_url="http://test") as client:
         yield rt, client
@@ -38,62 +36,27 @@ async def env(tmp_path):
 
 
 async def _login(client):
-    r = await client.post("/login", data={"password": PW, "next": "/calls"})
-    assert r.status_code == 303 and r.headers["location"] == "/calls"
-    return r
+    """The dashboard is open; kept so the tests below read the same."""
+    return None
 
 
 @pytest.mark.parametrize("path", ["/chats", "/calls", "/cases", "/export"])
-async def test_pages_redirect_to_login(env, path):
+async def test_pages_open_without_login(env, path):
     _, client = env
     r = await client.get(path)
-    assert r.status_code == 303 and r.headers["location"].startswith("/login?next=")
+    assert r.status_code == 200 and "text/html" in r.headers["content-type"]
 
 
-@pytest.mark.parametrize("path", ["/api/v1/cases", "/api/v1/cases/c_000000000000", "/api/v1/events/stream"])
-async def test_api_requires_login(env, path):
+@pytest.mark.parametrize("path", ["/api/v1/cases", "/api/networks"])
+async def test_api_open_without_login(env, path):
     _, client = env
-    r = await client.get(path)
-    assert r.status_code == 401 and r.json()["detail"] == "login required"
+    assert (await client.get(path)).status_code == 200
 
 
-async def test_login_sets_httponly_lax_cookie_and_opens_pages(env):
+async def test_login_routes_removed(env):
     _, client = env
-    bad = await client.post("/login", data={"password": "nope"})
-    assert bad.status_code == 303 and "error=1" in bad.headers["location"] and COOKIE_NAME not in bad.cookies
-    r = await _login(client)
-    sc = r.headers["set-cookie"].lower()
-    assert "httponly" in sc and "samesite=lax" in sc
-    for path in ["/chats", "/calls", "/cases", "/export"]:
-        page = await client.get(path)
-        assert page.status_code == 200 and "text/html" in page.headers["content-type"]
-    assert (await client.get("/api/v1/cases")).json()["cases"] == []
-    await client.post("/logout")
-    client.cookies.clear()
-    assert (await client.get("/api/v1/cases")).status_code == 401
-
-
-async def test_empty_password_refuses_login(env):
-    rt, client = env
-    set_runtime(Runtime(settings=Settings(dashboard_password="", public_base_url=""), store=rt.store, bus=rt.bus))
-    r = await client.post("/login", data={"password": ""})
-    assert r.status_code == 303 and "error=disabled" in r.headers["location"] and COOKIE_NAME not in r.cookies
-    assert not cookie_valid("", make_cookie("x"))
-
-
-def test_cookie_signature_and_expiry():
-    c = make_cookie(PW, now=1000)
-    assert cookie_valid(PW, c, now=1001)
-    assert not cookie_valid("other", c, now=1001)
-    assert not cookie_valid(PW, c[:-1] + ("0" if c[-1] != "0" else "1"), now=1001)
-    assert not cookie_valid(PW, c, now=1000 + 13 * 3600)
-
-
-async def test_foreign_origin_rejected(env):
-    _, client = env
-    await _login(client)
-    assert (await client.get("/api/v1/cases", headers={"Origin": "https://evil.example"})).status_code == 403
-    assert (await client.get("/api/v1/cases", headers={"Origin": "https://sb.example"})).status_code == 200
+    assert (await client.get("/login")).status_code == 404
+    assert (await client.post("/login", data={"password": "x"})).status_code in (404, 405)
 
 
 async def test_case_api_returns_real_data(env):

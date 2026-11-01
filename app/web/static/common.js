@@ -49,12 +49,8 @@ var SB = (function () {
     return h("span", { class: "badge " + (v || "unknown"), text: label });
   }
 
-  function loginRedirect() {
-    location.href = "/login?next=" + encodeURIComponent(location.pathname + location.search);
-  }
   function api(path) {
     return fetch(path, { credentials: "same-origin", headers: { Accept: "application/json" } }).then(function (r) {
-      if (r.status === 401) { loginRedirect(); throw new Error("login required"); }
       if (!r.ok) throw new Error(path + " -> HTTP " + r.status);
       return r.json();
     });
@@ -69,8 +65,7 @@ var SB = (function () {
       h("nav", null, links.map(function (l) {
         return h("a", { href: "/" + l[0], class: l[0] === active ? "active" : null, text: l[1] });
       })),
-      h("span", { class: "conn" }, h("span", { class: "dot", id: "conn-dot" }), h("span", { id: "conn-text", text: "connecting" })),
-      h("form", { method: "post", action: "/logout" }, h("button", { class: "linkbtn", type: "submit", text: "Log out" }))
+      h("span", { class: "conn" }, h("span", { class: "dot", id: "conn-dot" }), h("span", { id: "conn-text", text: "connecting" }))
     ]);
   }
   function setConn(state, text) {
@@ -87,8 +82,6 @@ var SB = (function () {
     es.onopen = function () { setConn("on", "live"); };
     es.onerror = function () {
       setConn("off", "reconnecting");
-      // A 401 closes the stream for good; check the session and go to login if it expired.
-      if (es.readyState === 2) api("/api/v1/cases?limit=1").catch(function () {});
     };
     function deliver(ev) {
       if (ev.id !== null && ev.id !== undefined) {

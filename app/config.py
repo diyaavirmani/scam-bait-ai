@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-REQUIRED_FOR_RUNTIME = ("OPENAI_API_KEY", "CEREBRAS_API_KEY", "API_KEY", "DASHBOARD_PASSWORD")
+REQUIRED_FOR_RUNTIME = ("OPENAI_API_KEY", "CEREBRAS_API_KEY")
 
 
 def _int(name: str, default: int) -> int:
@@ -34,7 +34,6 @@ class Settings:
     telegram_bot_token: str = field(default_factory=lambda: os.getenv("TELEGRAM_BOT_TOKEN", ""))
     telegram_webhook_secret: str = field(default_factory=lambda: os.getenv("TELEGRAM_WEBHOOK_SECRET", ""))
     api_key: str = field(default_factory=lambda: os.getenv("API_KEY", ""))
-    dashboard_password: str = field(default_factory=lambda: os.getenv("DASHBOARD_PASSWORD", ""))
     demo_mode: bool = field(default_factory=lambda: os.getenv("DEMO_MODE", "0") == "1")
     call_batch_seconds: int = field(default_factory=lambda: _int("CALL_BATCH_SECONDS", 20))
     db_path: str = field(default_factory=lambda: os.getenv("DB_PATH", "scambait.db"))
