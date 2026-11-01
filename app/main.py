@@ -10,11 +10,13 @@ from fastapi.responses import JSONResponse
 from app.config import Settings, get_settings
 from app.events import Bus
 from app.events.sse import router as events_router
+from app.logs import setup_logging
 from app.providers import build_clients
+from app.voice import router as voice_router
 from app.runtime import Runtime, get_runtime, set_runtime
 from app.store import Store
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
+setup_logging()
 log = logging.getLogger("scambait")
 
 _selftest: dict = {"ok": False, "detail": "not run"}
@@ -51,6 +53,7 @@ def create_app(settings: Settings | None = None, *, run_startup: bool = True) ->
     app = FastAPI(title="SCAM-BAIT AI", version="2.0.0", lifespan=lifespan)
     app.state.settings = settings
     app.include_router(events_router)
+    app.include_router(voice_router)
 
     @app.get("/health")
     async def health():
