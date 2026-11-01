@@ -3,7 +3,10 @@
 set -u
 cd "$(dirname "$0")/.."
 fail=0
-echo "1. pytest"; .venv/bin/python -m pytest -q || fail=1
+echo "1. pytest on a clean checkout of HEAD (parallel tracks may have unfinished files in the working tree)"
+wt=$(mktemp -d)/head; git worktree add -q --detach "$wt" HEAD
+(cd "$wt" && "$OLDPWD/.venv/bin/python" -m pytest -q -p no:cacheprovider) || fail=1
+git worktree remove --force "$wt"
 echo "2. style: em dash / emoji in tracked files (testset excluded)"
 out=$(git grep -nP "\x{2014}|[\x{1F300}-\x{1FAFF}\x{2600}-\x{27BF}\x{1F000}-\x{1F2FF}\x{FE0F}]" -- . ':!testset'); [ -n "$out" ] && { echo "$out"; fail=1; }
 echo "3. style: last commit message"

@@ -73,7 +73,8 @@ seen_keys(key TEXT PK, ts TEXT)   -- idempotency (Telegram update_id, Twilio Cal
 - `reply_guard(text) -> (text, flags)`. `detect_language(text)` uses the Unicode script.
 - `extract(text) -> [IntelCandidate]` and `validate([...]) -> [IntelCandidate]`. Extraction runs on scammer text only, one message at a time.
 - `orchestrator.handle_message(case_id, channel, text) -> Reply{case_id, text, degraded, closed, coalesced, turn, verdict, scam_type}`.
-- `orchestrator.handle_call_transcript(case_id, role, text, final)` handles calls: transcript events, Decisions per caller utterance, and qwen batches every `CALL_BATCH_SECONDS`.
+- `orchestrator.handle_call_transcript(case_id, role, text, final) -> str | None` handles calls (`role` is `caller` or `persona`): Decisions per caller utterance and qwen batches every `CALL_BATCH_SECONDS`. It returns a nudge for `session.instructions.append`, or None. `orchestrator.end_call(case_id)` runs the final batch, closes the case and schedules the report (idempotent). The voice track emits the `transcript.*` and `call.status` events itself.
+- `detection.ensemble.detect_opening(window, case_id, on_fast=None) -> FinalVerdict` runs the prefilter, then `asyncio.gather(cerebras_flag, decisions_verdict)`, and calls `on_fast` (stage fast) as soon as the Cerebras flag returns. `detection.ensemble.recheck(window, case_id) -> FinalVerdict` is the background Decisions re-check.
 - A case closes at 20 scammer messages, or at 15 or more when the scammer says goodbye, or when `still_scam` is false and Decisions agrees. Closing schedules `report.write_case_report(case_id)` in the background.
 
 ## Routes
