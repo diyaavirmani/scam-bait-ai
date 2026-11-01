@@ -1,0 +1,13 @@
+# Keyless: run only the repo regex baseline against extraction gold (real baseline numbers, no LLM).
+description: SB extraction - regex baseline only
+prompts: [file://prompts/extract.txt]
+providers:
+  - id: file://providers/regex_only.py
+    label: C-regex-baseline
+    config: {safe_apk: true}   # false = repo as-is (exponential backtracking, see providers/regex_only.py)
+defaultTest:
+  assert:
+    - type: is-json
+    - type: python
+      value: file://asserts/field_f1.py
+tests: file://extraction_tests.jsonl

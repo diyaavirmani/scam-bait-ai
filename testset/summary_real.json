@@ -1,0 +1,186 @@
+{
+ "total": 402,
+ "dev": 280,
+ "test": 122,
+ "seed": 20261101,
+ "version": "v2 (Task 7 append; v1 rows unchanged, new rows split separately)",
+ "label": {
+  "legit": 142,
+  "scam": 260
+ },
+ "scam_type": {
+  "legit_lookalike": 142,
+  "utility_disconnect": 35,
+  "kyc_bank_pan": 29,
+  "voice_trai_telecom": 13,
+  "kyc_sim_wallet": 37,
+  "investment_trading": 17,
+  "courier_fedex_drugs": 9,
+  "customer_care": 12,
+  "courier_indiapost": 5,
+  "lottery_kbc": 17,
+  "bank_reward_points": 8,
+  "job_task": 27,
+  "romance_pig_butchering": 7,
+  "digital_arrest": 5,
+  "loan_app_harassment": 9,
+  "upi_collect_qr": 14,
+  "sextortion": 11,
+  "e_challan": 5
+ },
+ "lookalike_topics": {
+  "lottery_kbc": 10,
+  "courier_fedex_drugs": 6,
+  "genuine_service": 16,
+  "investment_trading": 7,
+  "sextortion_keyword_casual": 6,
+  "digital_arrest": 6,
+  "voice_trai_telecom": 6,
+  "loan_app_harassment": 11,
+  "e_challan": 11,
+  "utility_disconnect": 9,
+  "sextortion": 11,
+  "courier_indiapost": 5,
+  "upi_collect_qr": 6,
+  "job_task": 7,
+  "govt_scheme_fake": 6,
+  "kyc_bank_pan": 6,
+  "customer_care": 7,
+  "kyc_sim_wallet": 6
+ },
+ "modality": {
+  "scam_discussion": 114,
+  "quoted_scam_msg": 141,
+  "call_script_reported": 36,
+  "genuine_service_msg": 17,
+  "direct_spam_post": 69,
+  "casual_chat": 10,
+  "promo_ad": 1,
+  "threat_reported": 14
+ },
+ "language": {
+  "hinglish": 18,
+  "en": 357,
+  "hi": 11,
+  "hi+en": 14,
+  "te+en": 1,
+  "ml+en": 1
+ },
+ "channel": {
+  "x_post": 144,
+  "voice_call": 51,
+  "sms": 70,
+  "unknown": 95,
+  "whatsapp": 29,
+  "telegram": 10,
+  "video_call": 3
+ },
+ "source": {
+  "x.com": 389,
+  "www.moneylife.in": 1,
+  "www.bbc.com": 3,
+  "yourstory.com": 3,
+  "inc42.com": 1,
+  "www.truecaller.com": 1,
+  "timesofindia.indiatimes.com": 2,
+  "www.gendigital.com": 1,
+  "goodmoneying.com": 1
+ },
+ "origin": {
+  "x_search": 386,
+  "kaggle_verified_source": 8,
+  "news_quote": 4,
+  "advisory_quote": 4
+ },
+ "edge_tags": {
+  "link_redacted_tco": 51,
+  "typo_slang": 27,
+  "emoji": 44,
+  "short": 45,
+  "multi_message": 2,
+  "obfuscation_homoglyph": 4,
+  "apk": 12,
+  "non_india_locale": 15,
+  "truncated": 3,
+  "fake_police_followup": 2
+ },
+ "message_only": {
+  "scam": 260,
+  "legit": 28
+ },
+ "test_label": {
+  "legit": 43,
+  "scam": 79
+ },
+ "test_scam_type": {
+  "utility_disconnect": 11,
+  "voice_trai_telecom": 4,
+  "kyc_bank_pan": 9,
+  "investment_trading": 5,
+  "courier_indiapost": 2,
+  "lottery_kbc": 5,
+  "bank_reward_points": 2,
+  "job_task": 8,
+  "kyc_sim_wallet": 11,
+  "customer_care": 4,
+  "courier_fedex_drugs": 3,
+  "upi_collect_qr": 4,
+  "loan_app_harassment": 3,
+  "digital_arrest": 1,
+  "sextortion": 3,
+  "e_challan": 2,
+  "romance_pig_butchering": 2
+ },
+ "year": {
+  "2022": 86,
+  "2024": 59,
+  "2025": 28,
+  "2021": 99,
+  "2020": 26,
+  "2023": 67,
+  "2026": 29,
+  "unkn": 8
+ },
+ "synthetic_rows": 0,
+ "v2_added": {
+  "added": 87,
+  "dev_added": 59,
+  "test_added": 28,
+  "per_type": {
+   "sextortion": 11,
+   "upi_collect_qr": 14,
+   "loan_app_harassment": 9,
+   "e_challan": 5,
+   "digital_arrest": 4,
+   "courier_fedex_drugs": 3,
+   "romance_pig_butchering": 6,
+   "job_task": 20,
+   "investment_trading": 9,
+   "kyc_bank_pan": 3,
+   "utility_disconnect": 1,
+   "courier_indiapost": 1,
+   "lottery_kbc": 1
+  },
+  "test_per_type": {
+   "courier_fedex_drugs": 1,
+   "courier_indiapost": 1,
+   "digital_arrest": 1,
+   "e_challan": 2,
+   "investment_trading": 3,
+   "job_task": 6,
+   "kyc_bank_pan": 1,
+   "loan_app_harassment": 3,
+   "romance_pig_butchering": 2,
+   "sextortion": 3,
+   "upi_collect_qr": 4,
+   "utility_disconnect": 1
+  },
+  "origin": {
+   "x_search": 71,
+   "advisory_quote": 4,
+   "news_quote": 4,
+   "kaggle_verified_source": 8
+  }
+ },
+ "sha1_real_messages": "d51073a6bc0fcea5fccf6480746bcdf6555432fe"
+}

@@ -1,0 +1,18 @@
+# Extraction A/B: field-level precision/recall vs extraction_gold.jsonl
+description: SB extraction arms
+prompts:
+  - file://prompts/extract.txt
+providers:
+  - id: cerebras:gpt-oss-120b                # Arm A: Cerebras strict JSON (no pattern/format in schema; validate in Python)
+    label: A-cerebras
+  - id: openai:responses:gpt-6-luna          # Arm B: Responses Structured Outputs
+    label: B-responses-so
+  - id: file://providers/regex_only.py       # Arm C: current repo regex (baseline, app/agents/extraction.py)
+    label: C-regex-baseline
+    config: {safe_apk: true}   # false = repo as-is (exponential backtracking, see providers/regex_only.py)
+defaultTest:
+  assert:
+    - type: is-json
+    - type: python
+      value: file://asserts/field_f1.py      # per-field P/R/F1 + exact-match rate
+tests: file://extraction_tests.jsonl   # vars.text + vars.gold (JSON string), from extraction_gold.jsonl

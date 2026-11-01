@@ -1,0 +1,24 @@
+# OFFLINE dry run: same split, asserts and metrics as promptfooconfig.detection_real.yaml, but both LLM arms
+# are replaced by providers/mock_provider.py. Proves wiring only; the numbers are NOT model results.
+#   npx promptfoo@latest eval -c promptfooconfig.mock_dryrun.yaml --no-cache -o out/mock_real_test.json
+description: DRY RUN (mock) - SB detection real test split
+prompts:
+  - file://prompts/detect.txt
+providers:
+  - id: file://providers/mock_provider.py
+    label: A-decisions-MOCK
+    config: {style: decisions, latency_ms: [250, 600]}
+  - id: file://providers/mock_provider.py
+    label: B-cerebras-MOCK
+    config: {style: json, latency_ms: [180, 450]}
+  - id: file://providers/regex_only.py
+    label: C-regex-keyword-floor
+    config: {mode: detect, min_hits: 2}
+defaultTest:
+  assert:
+    - type: python
+      value: file://asserts/label_match.py
+      metric: label_match
+tests: file://detection_real_test.jsonl
+derivedMetrics:
+  - {name: f1, value: "2*TP / (2*TP + FP + FN)"}

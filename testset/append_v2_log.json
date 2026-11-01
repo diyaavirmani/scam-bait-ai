@@ -1,0 +1,40 @@
+{
+ "added": 87,
+ "dev_added": 59,
+ "test_added": 28,
+ "per_type": {
+  "sextortion": 11,
+  "upi_collect_qr": 14,
+  "loan_app_harassment": 9,
+  "e_challan": 5,
+  "digital_arrest": 4,
+  "courier_fedex_drugs": 3,
+  "romance_pig_butchering": 6,
+  "job_task": 20,
+  "investment_trading": 9,
+  "kyc_bank_pan": 3,
+  "utility_disconnect": 1,
+  "courier_indiapost": 1,
+  "lottery_kbc": 1
+ },
+ "test_per_type": {
+  "courier_fedex_drugs": 1,
+  "courier_indiapost": 1,
+  "digital_arrest": 1,
+  "e_challan": 2,
+  "investment_trading": 3,
+  "job_task": 6,
+  "kyc_bank_pan": 1,
+  "loan_app_harassment": 3,
+  "romance_pig_butchering": 2,
+  "sextortion": 3,
+  "upi_collect_qr": 4,
+  "utility_disconnect": 1
+ },
+ "origin": {
+  "x_search": 71,
+  "advisory_quote": 4,
+  "news_quote": 4,
+  "kaggle_verified_source": 8
+ }
+}

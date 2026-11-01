@@ -1,0 +1,124 @@
+{
+"1354324661589442560": {
+"label": "scam",
+"scam_type": "investment_trading",
+"modality": "direct_spam_post"
+},
+"2005910995693191216": {
+"label": "scam",
+"scam_type": "investment_trading",
+"modality": "direct_spam_post"
+},
+"2042194393478660510": {
+"label": "scam",
+"scam_type": "investment_trading",
+"modality": "direct_spam_post"
+},
+"1995789418473353409": {
+"label": "scam",
+"scam_type": "investment_trading",
+"modality": "direct_spam_post"
+},
+"1595480507730767872": "casual",
+"1488816203258679298": "casual",
+"2092599831126487170": "drop",
+"2111012032367722799": "drop",
+"1384865443442159624": "disc",
+"1418457545241284608": "disc",
+"1504345882342600708": "disc",
+"1524623451037728768": "disc",
+"1449789971519336449": "disc",
+"1464536419020382208": "disc",
+"1559500342026387456": "disc",
+"1584082959677943809": "disc",
+"1410104723688935426": "disc",
+"1526102318600495104": "disc",
+"1672258957421989888": "disc",
+"1732081197369655654": "disc",
+"1754398841191960885": "disc",
+"1778277256408015127": "disc",
+"1783798536582423027": "disc",
+"1789965353239429152": "disc",
+"1796907734761398765": "disc",
+"1831733334201815152": "disc",
+"1834539960398995619": "disc",
+"1836975572842598520": "disc",
+"1841065933424521283": "disc",
+"1844686325196153024": "disc",
+"1846472073280971040": "disc",
+"1850000747049648220": "disc",
+"1850097355787505983": "disc",
+"1862466575707902084": "disc",
+"1866446892546375952": "disc",
+"1875984694761934989": "disc",
+"1879474057806237700": "disc",
+"1928052241413353726": "disc",
+"1929192746834948117": "disc",
+"1947976526290653613": "disc",
+"1949864805352788175": "disc",
+"1955148144397914278": "disc",
+"2008379752139329615": "disc",
+"2106588005628801223": "disc",
+"2107650542323613906": "disc",
+"2109715858310173070": "disc",
+"1616455563453542402": "promo",
+"1407612941956902919": {
+"label": "scam",
+"scam_type": "lottery_kbc",
+"modality": "call_script_reported",
+"from": "I am a member of kbc"
+},
+"1781578888730059230": {
+"label": "scam",
+"scam_type": "voice_trai_telecom",
+"modality": "call_script_reported",
+"from": "they are calling from TRAI"
+},
+"1816074738315428000": {
+"label": "scam",
+"scam_type": "voice_trai_telecom",
+"modality": "call_script_reported",
+"from": "your mobile number will be blocked"
+},
+"1526794709972099072": "disc",
+"1790679123314278463": "disc",
+"1849384056829477330": "disc",
+"1856346622700982453": "disc",
+"1856594744048267321": "disc",
+"1858404517743599880": "disc",
+"1863281282354135403": "disc",
+"1881629033169137922": "disc",
+"1372576889051566081": {
+"label": "scam",
+"scam_type": "bank_reward_points",
+"modality": "quoted_scam_msg",
+"from": "Dear customer your INDUSIND"
+},
+"1500128657431760899": {
+"label": "scam",
+"scam_type": "kyc_sim_wallet",
+"modality": "quoted_scam_msg",
+"from": "Dear user your SBI"
+},
+"1821871918158434569": {
+"label": "scam",
+"scam_type": "voice_trai_telecom",
+"modality": "call_script_reported",
+"from": "An IVR message playing"
+},
+"2019825826594722167": {
+"label": "scam",
+"scam_type": "romance_pig_butchering",
+"modality": "quoted_scam_msg",
+"from": "Oh, you are so kind"
+},
+"1692408826572795962": {
+"label": "legit",
+"scam_type": "legit_lookalike",
+"modality": "genuine_service_msg",
+"from": "\u092a\u094d\u0930\u093f\u092f \u0909\u092a\u092d\u094b\u0915\u094d\u0924\u093e",
+"topic": "utility_disconnect"
+},
+"1795518081818673337": "casual",
+"1827804764228243643": "casual"
+}

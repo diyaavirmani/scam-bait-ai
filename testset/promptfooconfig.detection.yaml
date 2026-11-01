@@ -1,0 +1,38 @@
+# Detection A/B: swap ONE component per run; keep prompts, data and thresholds fixed.
+# Run: promptfoo eval -c promptfooconfig.detection.yaml --no-cache  (repeat 3x for latency p50/p95)
+description: SB detection arms on messages.jsonl (labels scam/legit; ambiguous excluded)
+prompts:
+  - file://prompts/detect.txt
+providers:
+  - id: file://providers/decisions_provider.py      # Arm A: OpenAI Decisions (gpt-6-luna), typed probabilities
+    label: A-decisions
+  - id: cerebras:gpt-oss-120b                         # Arm B: Cerebras strict JSON classifier
+    label: B-cerebras-json
+    config:
+      temperature: 0
+      response_format:
+        type: json_schema
+        json_schema:
+          name: verdict
+          strict: true
+          schema:
+            type: object
+            additionalProperties: false
+            required: [is_scam, scam_type, risk]
+            properties:
+              is_scam: {type: boolean}
+              scam_type: {type: string}
+              risk: {type: string, enum: [none, low, medium, high, critical]}
+  - id: openai:responses:gpt-6-luna                   # Arm C: Responses + Structured Outputs (control)
+    label: C-responses-so
+defaultTest:
+  assert:
+    - type: latency
+      threshold: 1500          # ms, per message; tune after first run
+    - type: python             # writes per-row TP/FP/FN/TN as named metrics
+      value: file://asserts/label_match.py
+      metric: label_match
+tests: file://detection_synth_tests.jsonl   # converted from detection_eval.jsonl (synthetic set)
+derivedMetrics:                       # promptfoo supports derived metrics; define precision/recall/F1 from TP/FP/FN
+  - name: f1
+    value: "2*TP / (2*TP + FP + FN)"

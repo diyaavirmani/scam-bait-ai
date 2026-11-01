@@ -1,0 +1,12 @@
+Extract scammer intelligence from the MESSAGE. Copy values exactly as written; never invent or complete
+a value. Omit a key when nothing is present. Output only JSON with any of these keys:
+upiIds, phoneNumbers, bankAccounts, ifscCodes, beneficiaryNames, phishingLinks, apkLinks, appLinks,
+groupLinks, socialHandles, cryptoWallets, cryptoNetworks, emails, impersonatedEntities,
+investmentPlatforms, claimedRegNos, promisedReturn, withdrawalFeeDemands (list of {amount_inr, reason}),
+investmentStage (one of: hook, onboarding, deposit, profit_display, withdrawal_block, recovery).
+Lists are arrays of strings unless stated.
+
+MESSAGE:
+<<<
+{{text}}
+>>>

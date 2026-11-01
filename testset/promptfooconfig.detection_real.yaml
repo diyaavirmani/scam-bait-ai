@@ -1,0 +1,46 @@
+# REAL-message detection arms: Cerebras gpt-oss-120b (stage 2, fast verdict) and Decisions gpt-6-luna (stage 3), each alone, plus a regex floor, SAME frozen split.
+# The ensemble of both is tuned and scored by ensemble/score_arms.py + ensemble/tune_ensemble.py (Promptfoo can't combine two providers per row).
+# Tune prompts/thresholds on detection_real_dev.jsonl ONLY; report on detection_real_test.jsonl once.
+# Run (keys in env, never in this file):
+#   npx promptfoo@latest eval -c promptfooconfig.detection_real.yaml --no-cache --repeat 3 -o out/real_test.json
+#   python3 metrics.py out/real_test.json
+description: SB detection on real public messages (test split, seed 20261101)
+prompts:
+  - file://prompts/detect.txt            # Decisions provider ignores it and sends vars.message + typed questions
+providers:
+  - id: file://providers/decisions_provider.py
+    label: A-decisions-stage3
+  - id: cerebras:gpt-oss-120b
+    label: B-cerebras-stage2
+    config:
+      temperature: 0
+      max_completion_tokens: 200
+      response_format:
+        type: json_schema
+        json_schema:
+          name: verdict
+          strict: true
+          schema:
+            type: object
+            additionalProperties: false
+            required: [is_scam, p_scam, scam_type, risk]
+            properties:
+              is_scam: {type: boolean}
+              p_scam: {type: number}
+              scam_type: {type: string}
+              risk: {type: string, enum: [none, low, medium, high, critical]}
+  - id: file://providers/regex_only.py   # free no-LLM floor (repo keyword list)
+    label: C-regex-keyword-floor
+    config: {mode: detect, min_hits: 2}
+defaultTest:
+  assert:
+    - type: python
+      value: file://asserts/label_match.py
+      metric: label_match
+    - type: latency
+      threshold: 1500
+tests: file://detection_real_test.jsonl
+derivedMetrics:
+  - {name: precision, value: "TP / (TP + FP)"}
+  - {name: recall, value: "TP / (TP + FN)"}
+  - {name: f1, value: "2*TP / (2*TP + FP + FN)"}

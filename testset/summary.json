@@ -1,0 +1,62 @@
+{
+ "total": 158,
+ "by_label": {
+  "scam": 82,
+  "legit": 72,
+  "ambiguous": 4
+ },
+ "by_synthetic": {
+  "False": 42,
+  "True": 116
+ },
+ "by_origin": {
+  "official": 1,
+  "xpost": 11,
+  "uci": 30,
+  "hf": 70,
+  "sb": 46
+ },
+ "by_language": {
+  "en": 80,
+  "bn_en": 10,
+  "hi": 11,
+  "hinglish": 21,
+  "mr_en": 11,
+  "ta_en": 12,
+  "te_en": 11,
+  "bn": 1,
+  "ta": 1
+ },
+ "by_modality": {
+  "whatsapp": 17,
+  "sms": 128,
+  "telegram": 3,
+  "voice_transcript": 8,
+  "email": 2
+ },
+ "by_scam_type": {
+  "investment_trading": 12,
+  "none": 72,
+  "unknown": 4,
+  "prize_premium_rate_uk": 15,
+  "electricity_bill": 5,
+  "loan_offer": 7,
+  "courier_customs": 9,
+  "job_offer": 3,
+  "fake_kyc": 3,
+  "lottery": 6,
+  "fake_bank_otp": 2,
+  "crypto_investment": 1,
+  "recovery_scam": 1,
+  "digital_arrest": 4,
+  "sextortion": 3,
+  "job_task": 3,
+  "customer_care": 1,
+  "kyc_phishing": 2,
+  "upi_collect": 1,
+  "utility_bill": 2,
+  "delivery_phishing": 1,
+  "echallan_apk": 1
+ },
+ "with_gold_extraction": 28
+}

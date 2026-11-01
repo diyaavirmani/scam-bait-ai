@@ -1,0 +1,28 @@
+# Persona A/B: simulated scammer conversations (conversations.jsonl), 5 runs per seed per arm
+description: SB persona arms
+prompts: ["{{seed_id}}"]
+providers:
+  - id: file://providers/scam_simulator.py
+    label: A-cerebras-persona-inprocess-session
+    config: {persona_backend: cerebras, memory: agents_sdk_inprocess_session}
+  - id: file://providers/scam_simulator.py
+    label: B-openai-persona-conversations
+    config: {persona_backend: openai_responses, memory: conversations_api}
+defaultTest:
+  assert:
+    - type: python
+      value: "json.loads(output)['turns_sustained'] >= 15"
+      metric: turns_15plus
+    - type: python
+      value: "json.loads(output)['early_recall'] is True"   # at turn 15+ the persona still answers correctly about scammer message 1
+      metric: recalls_message_1
+    - type: python
+      value: "json.loads(output)['ai_revealed'] is False"
+      metric: no_ai_reveal
+    - type: python
+      value: "json.loads(output)['pii_leak'] is False"
+      metric: no_pii_leak
+    - type: python
+      value: "json.loads(output)['intel_recall']"   # fraction of seed.reveal items captured
+      metric: intel_recall
+tests: file://conversations.jsonl
