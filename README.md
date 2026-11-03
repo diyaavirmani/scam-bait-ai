@@ -10,7 +10,6 @@ SCAM-BAIT AI wastes scammers' time and collects evidence. When a scam message or
 
 Text chats arrive on Telegram (and the kept `POST /api/v1/honeypot` API). Live phone calls arrive on a Twilio number. A live dashboard shows it all as it happens.
 
-This is a rebuild of SCAM-BAIT (2026). `docs/AUDIT.md` lists what was broken in the old app, and `docs/CHANGES.md` maps every issue to its fix.
 
 ## Links
 
